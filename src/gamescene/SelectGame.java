@@ -1,10 +1,10 @@
 package gamescene;
 
 import imageaction.BackgroundImage;
+import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
+import javafx.scene.control.*;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -15,15 +15,25 @@ import java.util.List;
 public class SelectGame {
 
     // Class nhỏ để chứa thông tin game
-    static class GameOption {
-        String name;
-        int id;
+    public static class GameOption {
+        public final String name;
+        public final int id;
+        public final int maxPlayers;
 
-        public GameOption(String name, int id) {
+        public GameOption(String name, int id, int maxPlayers) {
             this.name = name;
             this.id = id;
+            this.maxPlayers = maxPlayers;
         }
     }
+
+    // Danh sách các game hỗ trợ
+    public static final List<GameOption> gameOptions = List.of(
+            new GameOption("Tiến lên miền Nam", 1, 4),
+            new GameOption("Tiến lên miền Bắc", 2, 4)
+            // 👉 Thêm game mới tại đây nếu cần
+            // new GameOption("Phỏm", 3, 4)
+    );
 
     public static Parent create(Stage primaryStage) {
         VBox selectPane = new VBox(20);
@@ -31,15 +41,6 @@ public class SelectGame {
 
         Label label = new Label("Chọn Game");
         label.setStyle("-fx-font-size: 20px; -fx-font-family: 'Segoe UI'; -fx-text-fill: white;");
-
-
-        List<GameOption> gameOptions = List.of(
-                new GameOption("Tiến lên miền Nam", 1),
-                new GameOption("Tiến lên miền Bắc", 2)
-
-                // 👉 Chỉ cần thêm dòng này nếu có game mới
-                // new GameOption("Phỏm", 3)
-        );
 
         for (GameOption game : gameOptions) {
             Button button = new Button(game.name);
@@ -57,8 +58,8 @@ public class SelectGame {
 
             button.setOnAction(e -> {
                 ClickSound.play();
-                Parent gameConfigRoot = GameConfigScene.create(primaryStage, game.id);
-                primaryStage.getScene().setRoot(gameConfigRoot); // Set the root of the *existing* scene
+                Parent gameConfigRoot = GameConfigScene.create(primaryStage, game);
+                primaryStage.getScene().setRoot(gameConfigRoot);
             });
             selectPane.getChildren().add(button);
         }
