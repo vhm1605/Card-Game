@@ -22,7 +22,7 @@ public class GamePlayScene {
 
             // Set background - Ensure root is castable to Pane if using setBackground directly
             if (root instanceof Pane) {
-                ((Pane) root).setBackground(BackgroundImage.set());
+                ((Pane) root).setBackground(BackgroundImage.set("/resources/card/backgroundgameplay.png"));
             } else {
                 // Handle cases where the root isn't a Pane if necessary,
                 // though BorderPane (loaded from FXML) is a Pane.
