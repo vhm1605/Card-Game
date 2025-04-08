@@ -22,6 +22,14 @@ public class GameConfigScene {
         TextField playerTextField = createStyledTextField("Số lượng người chơi");
         TextField botTextField = createStyledTextField("Số lượng Bot");
 
+        // Label hiển thị số người chơi tối đa
+        Label maxPlayersLabel = new Label("Tổng số người chơi (Người + Bot) tối đa: " + gameOption.maxPlayers);
+        maxPlayersLabel.setStyle("-fx-text-fill: white; -fx-font-size: 14px;");
+
+        // Label cảnh báo nếu nhập sai
+        Label warningLabel = new Label();
+        warningLabel.setStyle("-fx-text-fill: red; -fx-font-size: 14px;");
+
         // Chế độ đồ họa
         Label graphicsLabel = new Label("Chế độ đồ họa:");
         graphicsLabel.setStyle("-fx-text-fill: white; -fx-font-size: 16px;");
@@ -48,10 +56,17 @@ public class GameConfigScene {
             int botCount = parseInput(botTextField.getText());
             int totalPlayers = playerCount + botCount;
 
-            if (totalPlayers <= 1 || totalPlayers > gameOption.maxPlayers) {
+            if (totalPlayers <= 1) {
+                warningLabel.setText("Cần ít nhất 2 người chơi để bắt đầu.");
                 return;
             }
 
+            if (totalPlayers > gameOption.maxPlayers) {
+                warningLabel.setText("Tổng số người chơi vượt quá giới hạn (" + gameOption.maxPlayers + ").");
+                return;
+            }
+
+            warningLabel.setText(""); // Xoá cảnh báo nếu hợp lệ
             boolean isBasic = basicMode.isSelected();
             Parent gamePlayRoot = GamePlayScene.create(primaryStage);
             primaryStage.getScene().setRoot(gamePlayRoot);
@@ -65,7 +80,16 @@ public class GameConfigScene {
             primaryStage.getScene().setRoot(selectGameRoot);
         });
 
-        inputPane.getChildren().addAll(label, playerTextField, botTextField, graphicsBox, next, backButton);
+        inputPane.getChildren().addAll(
+                label,
+                playerTextField,
+                botTextField,
+                maxPlayersLabel,
+                graphicsBox,
+                next,
+                backButton,
+                warningLabel
+        );
 
         StackPane inputRoot = new StackPane();
         inputRoot.setPrefSize(1280, 720);
@@ -83,13 +107,13 @@ public class GameConfigScene {
         textField.setPromptText(prompt);
         textField.setMaxWidth(200);
         textField.setStyle("""
-        -fx-font-size: 14px;
-        -fx-background-radius: 10;
-        -fx-border-radius: 10;
-        -fx-border-color: white;
-        -fx-border-width: 2;
-        -fx-padding: 5 10 5 10;
-    """);
+            -fx-font-size: 14px;
+            -fx-background-radius: 10;
+            -fx-border-radius: 10;
+            -fx-border-color: white;
+            -fx-border-width: 2;
+            -fx-padding: 5 10 5 10;
+        """);
 
         // Chỉ cho nhập số
         textField.setTextFormatter(new TextFormatter<>(change -> {
@@ -99,7 +123,6 @@ public class GameConfigScene {
 
         return textField;
     }
-
 
     private static Button createStyledButton(String text, String colorStart, String colorEnd) {
         Button button = new Button(text);
@@ -115,14 +138,6 @@ public class GameConfigScene {
             -fx-border-width: 2;
         """, colorStart, colorEnd));
         return button;
-    }
-
-    private static void showAlert(String title, String message) {
-        Alert alert = new Alert(Alert.AlertType.WARNING);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
     }
 
     public static int parseInput(String input) {
