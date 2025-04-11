@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.StackPane?>
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.GameSceneController">
+   <top>
+      <StackPane fx:id="topPane" prefHeight="100.0" prefWidth="600.0" BorderPane.alignment="CENTER" />
+   </top>
+   <left>
+      <StackPane fx:id="leftPane" prefHeight="200.0" prefWidth="200" BorderPane.alignment="CENTER" />
+   </left>
+   <right>
+      <StackPane fx:id="rightPane" prefHeight="200.0" prefWidth="200" BorderPane.alignment="CENTER" />
+   </right>
+   <bottom>
+      <StackPane fx:id="bottomPane" prefHeight="100.0" prefWidth="600.0" BorderPane.alignment="CENTER" />
+   </bottom>
+   <center>
+      <StackPane fx:id="centerPane" prefHeight="200.0" prefWidth="269.0" BorderPane.alignment="CENTER" />
+   </center>
+</BorderPane>
