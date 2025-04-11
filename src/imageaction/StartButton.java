@@ -1,6 +1,6 @@
 package imageaction;
 
-import gamescene.GameSeclectScene;
+import gamescene.SelectGame;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
@@ -23,7 +23,7 @@ public class StartButton {
 			// Set click event
 			startButton.setOnMouseClicked(e -> {
 				ClickSound.play();
-				primaryStage.setScene(GameSeclectScene.create(primaryStage));
+				primaryStage.setScene(SelectGame.create(primaryStage));
 			});
 
 			// Wrap in StackPane to center it
