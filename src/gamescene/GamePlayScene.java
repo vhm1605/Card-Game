@@ -1,6 +1,6 @@
 package gamescene;
 
-import controller.GamePlayController;
+import controller.GameSceneController;
 import imageaction.BackgroundImage;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
@@ -20,7 +20,7 @@ public class GamePlayScene {
             // Load FXML
             FXMLLoader loader = new FXMLLoader(GamePlayScene.class.getResource("GamePlayScene.fxml"));
             Parent root = loader.load();
-            GamePlayController controller = loader.getController();
+            GameSceneController controller = loader.getController();
 
             // Set background
             ((Pane) root).setBackground(BackgroundImage.set());
