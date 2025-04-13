@@ -4,13 +4,11 @@ import imageaction.BackgroundImage;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import soundaction.ClickSound;
-import gamelogic.GameOption;
 import gamelogic.TienLen;
 import gamelogic.TienLenMienBac;
 import gamelogic.TienLenMienNam;
@@ -65,27 +63,27 @@ public class GameConfigScene {
                 warningLabel.setText("Cần ít nhất 2 người chơi để bắt đầu.");
                 return;
             }
+
             if (totalPlayers > gameOption.maxPlayers) {
                 warningLabel.setText("Tổng số người chơi vượt quá giới hạn (" + gameOption.maxPlayers + ").");
                 return;
             }
 
-            warningLabel.setText("");
+            warningLabel.setText(""); // Clear warning if valid
             boolean isBasic = basicMode.isSelected();
-            System.out.println("Switching to GamePlayScene");
 
+            // Initialize the game based on selected option
+            // In GameConfigScene.create()
             if (gameOption.id == 1) {
                 TienLen game = new TienLenMienNam(totalPlayers, botCount);
-                GamePlayScene<TienLenMienNam> scene = new GamePlayScene<>((TienLenMienNam) game);
-                Parent gamePlayParent = scene.createGamePlayParent(primaryStage);
+                TienLenGameScene scene = new TienLenGameScene(game, primaryStage, isBasic);
+                Parent gamePlayParent = scene.createScene();
                 primaryStage.getScene().setRoot(gamePlayParent);
-                primaryStage.sizeToScene(); // Force UI update
             } else if (gameOption.id == 2) {
                 TienLen game = new TienLenMienBac(totalPlayers, botCount);
-                GamePlayScene<TienLenMienBac> scene = new GamePlayScene<>((TienLenMienBac) game);
-                Parent gamePlayParent = scene.createGamePlayParent(primaryStage);
+                TienLenGameScene scene = new TienLenGameScene(game, primaryStage, isBasic);
+                Parent gamePlayParent = scene.createScene();
                 primaryStage.getScene().setRoot(gamePlayParent);
-                primaryStage.sizeToScene(); // Force UI update
             }
         });
 

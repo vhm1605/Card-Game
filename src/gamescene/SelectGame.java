@@ -1,6 +1,5 @@
 package gamescene;
 
-import gamelogic.GameOption; // 👉 import từ package mới
 import imageaction.BackgroundImage;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
