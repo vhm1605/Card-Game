@@ -4,13 +4,11 @@ import imageaction.BackgroundImage;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import soundaction.ClickSound;
-import gamelogic.GameOption;
 import gamelogic.TienLen;
 import gamelogic.TienLenMienBac;
 import gamelogic.TienLenMienNam;
@@ -79,13 +77,13 @@ public class GameConfigScene {
                 TienLen game = new TienLenMienNam(totalPlayers, botCount);
                 // Create the GamePlayScene for MienNam and set it as the root of the current scene
                 GamePlayScene<TienLenMienNam> scene = new GamePlayScene<>((TienLenMienNam) game);
-                Parent gamePlayParent = scene.createGamePlayParent(primaryStage);
+                Parent gamePlayParent = scene.createGamePlay(primaryStage, isBasic);
                 primaryStage.getScene().setRoot(gamePlayParent); // Change the root of the current scene
             } else if (gameOption.id == 2) {
                 TienLen game = new TienLenMienBac(totalPlayers, botCount);
                 // Create the GamePlayScene for MienBac and set it as the root of the current scene
                 GamePlayScene<TienLenMienBac> scene = new GamePlayScene<>((TienLenMienBac) game);
-                Parent gamePlayParent = scene.createGamePlayParent(primaryStage);
+                Parent gamePlayParent = scene.createGamePlay(primaryStage, isBasic);
                 primaryStage.getScene().setRoot(gamePlayParent); // Change the root of the current scene
             }
         });

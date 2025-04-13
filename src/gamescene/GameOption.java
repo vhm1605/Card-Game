@@ -1,4 +1,4 @@
-package gamelogic;
+package gamescene;
 
 public class GameOption {
     public final String name;

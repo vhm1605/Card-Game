@@ -39,13 +39,15 @@ public class GamePlayScene<T extends TienLen> {
     private StackPane rightPane;
     private HBox buttonBox1;
     private Stage primaryStage;
+    private boolean isBasic;
 
     public GamePlayScene(T gameType) {
         this.gameType = gameType;
     }
 
-    public Parent createGamePlayParent(Stage primaryStage) {
+    public Parent createGamePlay(Stage primaryStage, boolean isBasic) {
         this.primaryStage = primaryStage;
+        this.isBasic = isBasic;
         try {
 
             URL fxmlLocation = getClass().getResource("GamePlayScene.fxml");
@@ -241,22 +243,33 @@ public class GamePlayScene<T extends TienLen> {
         winnerLabel.setTextFill(Color.WHITE);
 
         Button newGame = new Button("New Game");
-        newGame.setStyle("""
-            -fx-background-color: linear-gradient(to bottom, #FF5722, #E64A19);
-            -fx-text-fill: white;
-            -fx-font-size: 16px;
-            -fx-font-weight: bold;
-            -fx-padding: 10 20 10 20;
-            -fx-background-radius: 15;
-            -fx-border-radius: 15;
-            -fx-border-color: white;
-            -fx-border-width: 2px;
-        """);
+        Button backButton = new Button("Back");
+
+        String buttonStyle = """
+        -fx-background-color: linear-gradient(to bottom, #FF5722, #E64A19);
+        -fx-text-fill: white;
+        -fx-font-size: 16px;
+        -fx-font-weight: bold;
+        -fx-padding: 10 20 10 20;
+        -fx-background-radius: 15;
+        -fx-border-radius: 15;
+        -fx-border-color: white;
+        -fx-border-width: 2px;
+    """;
+
+        newGame.setStyle(buttonStyle);
+        backButton.setStyle(buttonStyle);
 
         newGame.setOnAction(e -> updateScene(centerPane, bottomPane, topPane, leftPane, rightPane));
+        backButton.setOnAction(e -> handleBackAction());
+
+        HBox buttonBox = new HBox(20);
+        buttonBox.getChildren().addAll(newGame, backButton);
+        buttonBox.setPadding(new Insets(10, 0, 0, 0));
 
         VBox vbox = new VBox(10);
-        vbox.getChildren().addAll(winnerLabel, newGame);
+        vbox.getChildren().addAll(winnerLabel, buttonBox);
+        vbox.setPadding(new Insets(20));
         centerPane.getChildren().addAll(vbox);
 
         gameType.resetGame();
