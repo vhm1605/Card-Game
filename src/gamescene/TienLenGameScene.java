@@ -1,13 +1,18 @@
 package gamescene;
 
 import gamelogic.TienLen;
+import imageaction.BackgroundImage;
 import imageaction.CardImage;
 import javafx.animation.PauseTransition;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -20,14 +25,73 @@ import module.Player;
 import module.PlayerState;
 import soundaction.ClickSound;
 import javafx.stage.Stage;
+import controller.GameSceneController;
 
+import java.io.IOException;
+import java.net.URL;
 import java.util.List;
 
 public class TienLenGameScene extends AbstractGameScene<TienLen> {
     private HBox buttonBox1;
+    private StackPane centerPane;
+    private StackPane bottomPane;
+    private StackPane topPane;
+    private StackPane leftPane;
+    private StackPane rightPane;
 
     public TienLenGameScene(TienLen gameLogic, Stage primaryStage, boolean isBasic) {
         super(gameLogic, primaryStage, isBasic);
+    }
+
+    @Override
+    public Parent createScene() {
+        BorderPane root;
+        if (!isBasic) {
+            try {
+                URL fxmlLocation = getClass().getResource("GamePlayScene.fxml");
+                FXMLLoader loader = new FXMLLoader(fxmlLocation);
+                root = loader.load();
+                GameSceneController controller = loader.getController();
+                this.centerPane = controller.getCenterPane();
+                this.bottomPane = controller.getBottomPane();
+                this.topPane = controller.getTopPane();
+                this.leftPane = controller.getLeftPane();
+                this.rightPane = controller.getRightPane();
+                root.setBackground(BackgroundImage.set("/resources/card/backgroundgameplay.png"));
+            } catch (IOException e) {
+                e.printStackTrace();
+                return null;
+            }
+        } else {
+            root = new BorderPane();
+            this.centerPane = new StackPane();
+            this.bottomPane = new StackPane();
+            this.topPane = new StackPane();
+            this.leftPane = new StackPane();
+            this.rightPane = new StackPane();
+            root.setCenter(centerPane);
+            root.setBottom(bottomPane);
+            root.setTop(topPane);
+            root.setLeft(leftPane);
+            root.setRight(rightPane);
+            centerPane.setPrefSize(269, 200);
+            bottomPane.setPrefSize(600, 100);
+            topPane.setPrefSize(600, 100);
+            leftPane.setPrefSize(200, 200);
+            rightPane.setPrefSize(200, 200);
+            root.setPrefSize(800, 500);
+            root.setBackground(new Background(new BackgroundFill(Color.DARKGREEN, null, null)));
+        }
+        setPanePadding();
+        setupUI();
+        return root;
+    }
+
+    private void setPanePadding() {
+        bottomPane.setPadding(new Insets(10, 0, 10, 0));
+        topPane.setPadding(new Insets(10, 0, 10, 0));
+        leftPane.setPadding(new Insets(80, 150, 80, 150));
+        rightPane.setPadding(new Insets(80, 150, 80, 150));
     }
 
     @Override
@@ -45,20 +109,26 @@ public class TienLenGameScene extends AbstractGameScene<TienLen> {
         skipButton.setPrefSize(150, 40);
         backButton.setPrefSize(150, 40);
 
-        String buttonStyle = """
-            -fx-background-color: linear-gradient(to right, #FF5722, #E64A19);
-            -fx-text-fill: white;
-            -fx-font-size: 16px;
-            -fx-font-weight: bold;
-            -fx-background-radius: 20;
-            -fx-border-radius: 20;
-            -fx-border-color: white;
-            -fx-border-width: 2;
-        """;
-
-        hitButton.setStyle(buttonStyle);
-        skipButton.setStyle(buttonStyle);
-        backButton.setStyle(buttonStyle);
+        if (!isBasic) {
+            String buttonStyle = """
+                -fx-background-color: linear-gradient(to right, #FF5722, #E64A19);
+                -fx-text-fill: white;
+                -fx-font-size: 16px;
+                -fx-font-weight: bold;
+                -fx-background-radius: 20;
+                -fx-border-radius: 20;
+                -fx-border-color: white;
+                -fx-border-width: 2;
+            """;
+            hitButton.setStyle(buttonStyle);
+            skipButton.setStyle(buttonStyle);
+            backButton.setStyle(buttonStyle);
+        } else {
+            String simpleStyle = "-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-size: 16px;";
+            hitButton.setStyle(simpleStyle);
+            skipButton.setStyle(simpleStyle);
+            backButton.setStyle(simpleStyle);
+        }
 
         hitButton.setOnAction(e -> {
             if (gameLogic.isValidPlay()) {
@@ -156,7 +226,7 @@ public class TienLenGameScene extends AbstractGameScene<TienLen> {
     private void lastPlayCardShow() {
         CardCollection lastPlay = gameLogic.getLastPlayedCards();
         centerPane.getChildren().clear();
-        centerPane.getChildren().add(buttonBox1); // Re-add buttons to keep them visible
+        centerPane.getChildren().add(buttonBox1);
         for (int i = 0; i < lastPlay.getSize(); i++) {
             centerPane.getChildren().add(CardImage.create(i, lastPlay.getSize(), lastPlay.getCardAt(i)));
         }
@@ -194,20 +264,25 @@ public class TienLenGameScene extends AbstractGameScene<TienLen> {
         Button newGame = new Button("New Game");
         Button backButton = new Button("Back");
 
-        String buttonStyle = """
-            -fx-background-color: linear-gradient(to bottom, #FF5722, #E64A19);
-            -fx-text-fill: white;
-            -fx-font-size: 16px;
-            -fx-font-weight: bold;
-            -fx-padding: 10 20 10 20;
-            -fx-background-radius: 15;
-            -fx-border-radius: 15;
-            -fx-border-color: white;
-            -fx-border-width: 2px;
-        """;
-
-        newGame.setStyle(buttonStyle);
-        backButton.setStyle(buttonStyle);
+        if (!isBasic) {
+            String buttonStyle = """
+                -fx-background-color: linear-gradient(to bottom, #FF5722, #E64A19);
+                -fx-text-fill: white;
+                -fx-font-size: 16px;
+                -fx-font-weight: bold;
+                -fx-padding: 10 20 10 20;
+                -fx-background-radius: 15;
+                -fx-border-radius: 15;
+                -fx-border-color: white;
+                -fx-border-width: 2px;
+            """;
+            newGame.setStyle(buttonStyle);
+            backButton.setStyle(buttonStyle);
+        } else {
+            String simpleStyle = "-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-size: 16px;";
+            newGame.setStyle(simpleStyle);
+            backButton.setStyle(simpleStyle);
+        }
 
         newGame.setOnAction(e -> {
             gameLogic.resetGame();
