@@ -103,31 +103,29 @@ public class TienLenGameScene extends AbstractGameScene<TienLen> {
     private void createActionButtons() {
         Button hitButton = new Button("Hit");
         Button skipButton = new Button("Skip");
-        Button backButton = new Button("Back");
+        Button backButton = createBackButton(); // Use the common back button
 
         hitButton.setPrefSize(150, 40);
         skipButton.setPrefSize(150, 40);
         backButton.setPrefSize(150, 40);
 
+        // Apply styles only to game-specific buttons
         if (!isBasic) {
-            String buttonStyle = """
-                -fx-background-color: linear-gradient(to right, #FF5722, #E64A19);
-                -fx-text-fill: white;
-                -fx-font-size: 16px;
-                -fx-font-weight: bold;
-                -fx-background-radius: 20;
-                -fx-border-radius: 20;
-                -fx-border-color: white;
-                -fx-border-width: 2;
-            """;
+            String buttonStyle =
+                    "-fx-background-color: linear-gradient(to right, #FF5722, #E64A19);" +
+                            "-fx-text-fill: white;" +
+                            "-fx-font-size: 16px;" +
+                            "-fx-font-weight: bold;" +
+                            "-fx-background-radius: 20;" +
+                            "-fx-border-radius: 20;" +
+                            "-fx-border-color: white;" +
+                            "-fx-border-width: 2;";
             hitButton.setStyle(buttonStyle);
             skipButton.setStyle(buttonStyle);
-            backButton.setStyle(buttonStyle);
         } else {
             String simpleStyle = "-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-size: 16px;";
             hitButton.setStyle(simpleStyle);
             skipButton.setStyle(simpleStyle);
-            backButton.setStyle(simpleStyle);
         }
 
         hitButton.setOnAction(e -> {
@@ -136,7 +134,6 @@ public class TienLenGameScene extends AbstractGameScene<TienLen> {
             }
         });
         skipButton.setOnAction(e -> skip());
-        backButton.setOnAction(e -> handleBackAction());
 
         buttonBox1 = new HBox(20);
         buttonBox1.getChildren().addAll(skipButton, hitButton, backButton);
@@ -168,12 +165,6 @@ public class TienLenGameScene extends AbstractGameScene<TienLen> {
         ClickSound.play();
         gameLogic.passTurn();
         updateUI();
-    }
-
-    private void handleBackAction() {
-        ClickSound.play();
-        Parent selectGameRoot = SelectGame.create(primaryStage);
-        primaryStage.getScene().setRoot(selectGameRoot);
     }
 
     @Override
@@ -253,51 +244,26 @@ public class TienLenGameScene extends AbstractGameScene<TienLen> {
     }
 
     @Override
-    protected void handleGameOver() {
-        lastPlayCardShow();
+    protected StackPane getGamePlayPane() {
+        return centerPane;
+    }
 
-        String resultText = "Thứ tự xếp hạng chiến thắng: " + gameLogic.playerRankingToString();
-        Label winnerLabel = new Label(resultText);
-        winnerLabel.setFont(Font.font("Arial", 20));
-        winnerLabel.setTextFill(Color.WHITE);
+    @Override
+    protected String getGameOverText() {
+        return "Thứ tự xếp hạng chiến thắng: " + gameLogic.playerRankingToString();
+    }
 
-        Button newGame = new Button("New Game");
-        Button backButton = new Button("Back");
-
-        if (!isBasic) {
-            String buttonStyle = """
-                -fx-background-color: linear-gradient(to bottom, #FF5722, #E64A19);
-                -fx-text-fill: white;
-                -fx-font-size: 16px;
-                -fx-font-weight: bold;
-                -fx-padding: 10 20 10 20;
-                -fx-background-radius: 15;
-                -fx-border-radius: 15;
-                -fx-border-color: white;
-                -fx-border-width: 2px;
-            """;
-            newGame.setStyle(buttonStyle);
-            backButton.setStyle(buttonStyle);
-        } else {
-            String simpleStyle = "-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-size: 16px;";
-            newGame.setStyle(simpleStyle);
-            backButton.setStyle(simpleStyle);
+    @Override
+    protected void resetGame() {
+        gameLogic.resetGame();
+        if (!centerPane.getChildren().isEmpty() && centerPane.getChildren().size() > 1) {
+            centerPane.getChildren().remove(centerPane.getChildren().size() - 1); // Remove game over UI
         }
+        updateUI();
+    }
 
-        newGame.setOnAction(e -> {
-            gameLogic.resetGame();
-            updateUI();
-        });
-        backButton.setOnAction(e -> handleBackAction());
-
-        HBox buttonBox = new HBox(20);
-        buttonBox.getChildren().addAll(newGame, backButton);
-        buttonBox.setPadding(new Insets(10, 0, 0, 0));
-
-        VBox vbox = new VBox(10);
-        vbox.getChildren().addAll(winnerLabel, buttonBox);
-        vbox.setPadding(new Insets(20));
-        centerPane.getChildren().clear();
-        centerPane.getChildren().add(vbox);
+    @Override
+    protected void updateFinalGameStateUI() {
+        lastPlayCardShow();
     }
 }
