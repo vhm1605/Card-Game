@@ -1,7 +1,6 @@
-package controller;
+package gamescene;
 
 import javafx.fxml.FXML;
-import javafx.scene.control.Label;
 import javafx.scene.layout.StackPane;
 
 public class GameSceneController {

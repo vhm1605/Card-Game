@@ -16,18 +16,12 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) {
         try {
-            // Tạo layout gốc
             StackPane root = new StackPane();
             root.setPrefSize(1280, 720);
-
-            // Đặt ảnh nền
             root.setBackground(BackgroundImage.set());
-
-            // Tạo ảnh và nút bắt đầu
             Image image = new Image(
                     Main.class.getResource("/resources/card/start_button.png").toExternalForm()
             );
-
             ImageView startButton = new ImageView(image);
             startButton.setPreserveRatio(true);   // Giữ tỉ lệ ảnh gốc
             startButton.setSmooth(true);          // Hiển thị mượt hơn

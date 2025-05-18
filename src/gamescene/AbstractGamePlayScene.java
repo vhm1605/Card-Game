@@ -1,25 +1,19 @@
 package gamescene;
 
 import imageaction.BackgroundImage;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import soundaction.ClickSound;
 import module.CardType;
-import controller.GameSceneController;
 import gamelogic.CardGame;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.net.URL;
-
-import javafx.scene.layout.BorderPane;
 //import javafx.scene.layout.Pane;
 //import game.engine.CardGame; // Placeholder, replace with your actual game engine's base class/interface
 //import game.engine.CardType; // Placeholder
@@ -33,6 +27,7 @@ public abstract class AbstractGamePlayScene<C extends CardType, G extends CardGa
     protected StackPane rightPane;
     protected Stage primaryStage;
     protected boolean isBasic;
+    protected boolean pressBack = false;
 
     public AbstractGamePlayScene(G game) {
         this.game = game;
@@ -41,28 +36,46 @@ public abstract class AbstractGamePlayScene<C extends CardType, G extends CardGa
     public Parent createGamePlay(Stage primaryStage, boolean isBasic) {
         this.primaryStage = primaryStage;
         this.isBasic = isBasic;
-        try {
-            URL fxmlLocation = getClass().getResource("GamePlayScene.fxml");
-            FXMLLoader loader = new FXMLLoader(fxmlLocation);
-            Parent root = loader.load();
-            GameSceneController controller = loader.getController();
-
-            this.centerPane = controller.getCenterPane();
-            this.bottomPane = controller.getBottomPane();
-            this.topPane = controller.getTopPane();
-            this.leftPane = controller.getLeftPane();
-            this.rightPane = controller.getRightPane();
-
-            ((Pane) root).setBackground(BackgroundImage.set("/resources/card/backgroundgameplay.png"));
-
-            setPanePadding();
-            createGameSpecificUI();
-
-            return root;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
+        BorderPane root;
+        if (!isBasic) {
+            try {
+                URL fxmlLocation = getClass().getResource("GamePlayScene.fxml");
+                FXMLLoader loader = new FXMLLoader(fxmlLocation);
+                root = loader.load();
+                GameSceneController controller = loader.getController();
+                this.centerPane = controller.getCenterPane();
+                this.bottomPane = controller.getBottomPane();
+                this.topPane = controller.getTopPane();
+                this.leftPane = controller.getLeftPane();
+                this.rightPane = controller.getRightPane();
+                root.setBackground(BackgroundImage.set("/resources/card/backgroundgameplay.png"));
+            } catch (IOException e) {
+                e.printStackTrace();
+                return null;
+            }
+        } else {
+            root = new BorderPane();
+            this.centerPane = new StackPane();
+            this.bottomPane = new StackPane();
+            this.topPane = new StackPane();
+            this.leftPane = new StackPane();
+            this.rightPane = new StackPane();
+            root.setCenter(centerPane);
+            root.setBottom(bottomPane);
+            root.setTop(topPane);
+            root.setLeft(leftPane);
+            root.setRight(rightPane);
+            centerPane.setPrefSize(269, 200);
+            bottomPane.setPrefSize(600, 100);
+            topPane.setPrefSize(600, 100);
+            leftPane.setPrefSize(200, 200);
+            rightPane.setPrefSize(200, 200);
+            root.setPrefSize(800, 500);
+            root.setBackground(new Background(new BackgroundFill(Color.DARKGREEN, null, null)));
         }
+        setPanePadding();
+        createGameSpecificUI();
+        return root;
     }
 
     private void setPanePadding() {
@@ -72,8 +85,8 @@ public abstract class AbstractGamePlayScene<C extends CardType, G extends CardGa
         rightPane.setPadding(new Insets(80, 150, 80, 150));
     }
 
-    protected Button createBackButton() {
-        Button backButton = new Button("Back");
+    protected Button createOutButton() {
+        Button backButton = new Button("Out");
         backButton.setPrefSize(150, 40);
         String buttonStyle = """
             -fx-background-color: linear-gradient(to right, #FF5722, #E64A19);
@@ -92,6 +105,7 @@ public abstract class AbstractGamePlayScene<C extends CardType, G extends CardGa
 
     protected void handleBackAction() {
         ClickSound.play();
+        pressBack = true;
         Parent selectGameRoot = SelectGame.create(primaryStage);
         primaryStage.getScene().setRoot(selectGameRoot);
     }

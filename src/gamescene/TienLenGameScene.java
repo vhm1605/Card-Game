@@ -43,7 +43,7 @@ public class TienLenGameScene<T extends TienLen> extends AbstractGamePlayScene<S
     private void createActionButtons() {
         Button hitButton = new Button("Hit");
         Button skipButton = new Button("Skip");
-        Button backButton = createBackButton();  // Use superclass method
+        Button backButton = createOutButton();  // Use superclass method
 
         // Set button sizes for hit and skip (backButton size set in superclass)
         hitButton.setPrefSize(150, 40);
@@ -95,7 +95,7 @@ public class TienLenGameScene<T extends TienLen> extends AbstractGamePlayScene<S
     }
 
     private void createCenterPack() {
-        ImageView cardImage = CardImage.create(0, 0);
+        ImageView cardImage = CardImage.create(0, 0, isBasic);
         cardImage.setOnMouseClicked(e -> {
             ClickSound.play();
             updateScene();
@@ -105,6 +105,7 @@ public class TienLenGameScene<T extends TienLen> extends AbstractGamePlayScene<S
 
     @Override
     protected void updateScene() {
+        if(pressBack == true) return;
         centerPane.getChildren().clear();  // Clear centerPane for update
         playerCardShow();
         lastPlayCardShow();
@@ -123,6 +124,7 @@ public class TienLenGameScene<T extends TienLen> extends AbstractGamePlayScene<S
             // Create and style the player name label
             Label nameLabel = new Label(playerNames[i]);
             nameLabel.setStyle("-fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold;");
+            nameLabel.setPrefWidth(120);
 
             // Set alignment and margin based on player index
             if (i == 2) { // Player 3 (topPane)
@@ -149,9 +151,9 @@ public class TienLenGameScene<T extends TienLen> extends AbstractGamePlayScene<S
 
                     if (game.getCurrentPlayer() != null && game.getCurrentPlayer().getAllCards() != null) {
                         if (game.getCurrentPlayer() instanceof AIPlayer) {
-                            destinations[i].getChildren().add(CardImage.create(j, size));
+                            destinations[i].getChildren().add(CardImage.create(j, size, isBasic));
                         } else {
-                            ImageView cardImg = CardImage.create(j, size, card);
+                            ImageView cardImg = CardImage.create(j, size, card, isBasic);
                             cardImg.setOnMouseClicked(e -> {
                                 ClickSound.play();
                                 if (game.getSelectedCards().getAllCards().contains(card)) {
@@ -166,7 +168,7 @@ public class TienLenGameScene<T extends TienLen> extends AbstractGamePlayScene<S
                         }
                     }
                 } else {
-                    destinations[i].getChildren().add(CardImage.create(j, size));
+                    destinations[i].getChildren().add(CardImage.create(j, size, isBasic));
                 }
             }
         }
@@ -176,7 +178,7 @@ public class TienLenGameScene<T extends TienLen> extends AbstractGamePlayScene<S
         CardCollection<StandardCard> lastPlay = game.getLastPlayedCards();
         centerPane.getChildren().clear();
         for (int i = 0; i < lastPlay.getSize(); i++) {
-            centerPane.getChildren().add(CardImage.create(i, lastPlay.getSize(), lastPlay.getCardAt(i)));
+            centerPane.getChildren().add(CardImage.create(i, lastPlay.getSize(), lastPlay.getCardAt(i), isBasic));
         }
     }
 
@@ -224,7 +226,6 @@ public class TienLenGameScene<T extends TienLen> extends AbstractGamePlayScene<S
         backButton.setStyle(buttonStyle);
 
         newGame.setOnAction(e -> {
-            game.resetGame();
             updateScene();
         });
         backButton.setOnAction(e -> handleBackAction());
