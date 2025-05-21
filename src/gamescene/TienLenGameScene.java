@@ -37,14 +37,15 @@ public class TienLenGameScene<T extends TienLen> extends AbstractGamePlayScene<S
 
     @Override
     protected void createGameSpecificUI() {
-        createActionButtons();
+        createActionButtons(false);
         createCenterPack();
     }
 
-    private void createActionButtons() {
+    private void createActionButtons(boolean waiting) {
         Button hitButton = new Button("Hit");
         Button skipButton = new Button("Skip");
         Button backButton = createOutButton();  // Use superclass method
+
 
         // Set button sizes for hit and skip (backButton size set in superclass)
         hitButton.setPrefSize(150, 40);
@@ -63,7 +64,6 @@ public class TienLenGameScene<T extends TienLen> extends AbstractGamePlayScene<S
         """;
         hitButton.setStyle(buttonStyle);
         skipButton.setStyle(buttonStyle);
-
         // Button actions
         hitButton.setOnAction(e -> {
             if (game.isValidPlay()) {
@@ -88,7 +88,18 @@ public class TienLenGameScene<T extends TienLen> extends AbstractGamePlayScene<S
 
         // Create HBox and add all buttons
         buttonBox = new HBox(20);  // Spacing between buttons
-        buttonBox.getChildren().addAll(skipButton, hitButton, backButton);
+        if(waiting) {
+
+            Button showCard = new Button("Show your Cards");
+            showCard.setOnAction(e -> {
+                ClickSound.play();
+                playerCardShow(false);
+            });
+            showCard.setPrefSize(200, 40);
+            showCard.setStyle(buttonStyle);
+            buttonBox.getChildren().addAll(skipButton, hitButton, backButton, showCard);
+        }
+        else buttonBox.getChildren().addAll(skipButton, hitButton, backButton);
         buttonBox.setPadding(new Insets(10, 0, 10, 0));
         centerPane.getChildren().add(buttonBox);
         StackPane.setAlignment(buttonBox, Pos.BOTTOM_CENTER);  // Position at bottom
@@ -108,73 +119,94 @@ public class TienLenGameScene<T extends TienLen> extends AbstractGamePlayScene<S
     protected void updateScene() {
         if(pressBack == true) return;
         centerPane.getChildren().clear();  // Clear centerPane for update
-        playerCardShow();
-        lastPlayCardShow();
-        createActionButtons();  // Re-add buttons
-        ifAiTurn();
+        if (game.getCurrentPlayer() instanceof AIPlayer<?, ?>) {
+            playerCardShow(false);
+            lastPlayCardShow();
+            createActionButtons(false);  // Re-add buttons
+            ifAiTurn();
+        }
+        else {
+            playerCardShow(true);
+            lastPlayCardShow();
+            createActionButtons(true);
+        }
     }
 
-    private void playerCardShow() {
+    private void playerCardShow(boolean waiting) {
         List<Player<StandardCard>> players = game.getPlayers();
         StackPane[] destinations = { bottomPane, rightPane, topPane, leftPane };
         String[] playerNames = {"Player 1", "Player 2", "Player 3", "Player 4"};
 
         for (int i = 0; i < players.size(); i++) {
             destinations[i].getChildren().clear();
+            addPlayerNameLabel(destinations[i], playerNames[i], i);
 
-            // Create and style the player name label
-            Label nameLabel = new Label(playerNames[i]);
-            nameLabel.setStyle("-fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold;");
-            nameLabel.setPrefWidth(Region.USE_COMPUTED_SIZE);   // để JavaFX tự tính
-            nameLabel.setMinWidth(Region.USE_PREF_SIZE);
-
-            // Set alignment and margin based on player index
-            if (i == 2) { // Player 3 (topPane)
-                StackPane.setAlignment(nameLabel, Pos.BOTTOM_CENTER);
-                StackPane.setMargin(nameLabel, new Insets(150, 0, 0, 0)); // 10px below cards
-            } else if (i == 0) {
-                StackPane.setAlignment(nameLabel, Pos.TOP_CENTER);
-                StackPane.setMargin(nameLabel, new Insets(0, 0, 140, 0)); // 5px above cards
-            } else { // Players 2, 4 (rightPane, leftPane)
-                StackPane.setAlignment(nameLabel, Pos.TOP_CENTER);
-                StackPane.setMargin(nameLabel, new Insets(20, 0, 5, 0)); // 5px above cards
-            }
-            destinations[i].getChildren().add(nameLabel);
-
-            // Existing card display logic
-            for (int j = 0; j < players.get(i).getHandSize(); j++) {
-                StandardCard card = players.get(i).getAllCards().get(j);
-                int size = players.get(i).getHandSize();
-
-                if (i == game.getCurrentPlayerIndex()) {
-                    while (game.getCurrentPlayer().getState() != PlayerState.IN_ROUND) {
-                        game.moveToNextPlayer();
-                    }
-
-                    if (game.getCurrentPlayer() != null && game.getCurrentPlayer().getAllCards() != null) {
-                        if (game.getCurrentPlayer() instanceof AIPlayer) {
-                            destinations[i].getChildren().add(CardImage.create(j, size, isBasic));
-                        } else {
-                            ImageView cardImg = CardImage.create(j, size, card, isBasic);
-                            cardImg.setOnMouseClicked(e -> {
-                                ClickSound.play();
-                                if (game.getSelectedCards().getAllCards().contains(card)) {
-                                    game.deselectCard(card);
-                                    cardImg.setTranslateY(0);
-                                } else {
-                                    game.selectCard(card);
-                                    cardImg.setTranslateY(-10);
-                                }
-                            });
-                            destinations[i].getChildren().add(cardImg);
-                        }
-                    }
-                } else {
-                    destinations[i].getChildren().add(CardImage.create(j, size, isBasic));
+            if (i == game.getCurrentPlayerIndex() && !waiting) {
+                while (game.getCurrentPlayer().getState() != PlayerState.IN_ROUND) {
+                    game.moveToNextPlayer();
                 }
+                showPlayerCards(i, destinations[i]);
+            } else {
+                showHiddenCards(i, destinations[i]);
             }
         }
     }
+    private void addPlayerNameLabel(StackPane pane, String name, int index) {
+        Label nameLabel = new Label(name);
+        nameLabel.setStyle("-fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold;");
+        nameLabel.setPrefWidth(Region.USE_COMPUTED_SIZE);
+        nameLabel.setMinWidth(Region.USE_PREF_SIZE);
+
+        if (index == 2) {
+            StackPane.setAlignment(nameLabel, Pos.BOTTOM_CENTER);
+            StackPane.setMargin(nameLabel, new Insets(150, 0, 0, 0));
+        } else if (index == 0) {
+            StackPane.setAlignment(nameLabel, Pos.TOP_CENTER);
+            StackPane.setMargin(nameLabel, new Insets(0, 0, 140, 0));
+        } else {
+            StackPane.setAlignment(nameLabel, Pos.TOP_CENTER);
+            StackPane.setMargin(nameLabel, new Insets(20, 0, 5, 0));
+        }
+
+        pane.getChildren().add(nameLabel);
+    }
+    private void showPlayerCards(int playerIndex, StackPane pane) {
+        Player<StandardCard> player = game.getPlayers().get(playerIndex);
+        int handSize = player.getHandSize();
+
+        if (player instanceof AIPlayer) {
+            for (int j = 0; j < handSize; j++) {
+                pane.getChildren().add(CardImage.create(j, handSize, isBasic));
+            }
+        } else {
+            for (int j = 0; j < handSize; j++) {
+                StandardCard card = player.getAllCards().get(j);
+                ImageView cardImg = CardImage.create(j, handSize, card, isBasic);
+
+                cardImg.setOnMouseClicked(e -> {
+                    ClickSound.play();
+                    if (game.getSelectedCards().getAllCards().contains(card)) {
+                        game.deselectCard(card);
+                        cardImg.setTranslateY(0);
+                    } else {
+                        game.selectCard(card);
+                        cardImg.setTranslateY(-10);
+                    }
+                });
+
+                pane.getChildren().add(cardImg);
+            }
+        }
+    }
+    private void showHiddenCards(int playerIndex, StackPane pane) {
+        Player<StandardCard> player = game.getPlayers().get(playerIndex);
+        int handSize = player.getHandSize();
+
+        for (int j = 0; j < handSize; j++) {
+            pane.getChildren().add(CardImage.create(j, handSize, isBasic));
+        }
+    }
+
 
     private void lastPlayCardShow() {
         CardCollection<StandardCard> lastPlay = game.getLastPlayedCards();
