@@ -30,6 +30,16 @@ import java.util.List;
 
 public class TienLenGameScene<T extends TienLen> extends AbstractGamePlayScene<StandardCard, T> {
     private HBox buttonBox;
+    private String buttonStyle = """
+            -fx-background-color: linear-gradient(to right, #FF5722, #E64A19);
+            -fx-text-fill: white;
+            -fx-font-size: 16px;
+            -fx-font-weight: bold;
+            -fx-background-radius: 20;
+            -fx-border-radius: 20;
+            -fx-border-color: white;
+            -fx-border-width: 2;
+        """;
 
     public TienLenGameScene(T game) {
         super(game);
@@ -52,16 +62,7 @@ public class TienLenGameScene<T extends TienLen> extends AbstractGamePlayScene<S
         skipButton.setPrefSize(150, 40);
 
         // Unified button styling for hit and skip (backButton styled in superclass)
-        String buttonStyle = """
-            -fx-background-color: linear-gradient(to right, #FF5722, #E64A19);
-            -fx-text-fill: white;
-            -fx-font-size: 16px;
-            -fx-font-weight: bold;
-            -fx-background-radius: 20;
-            -fx-border-radius: 20;
-            -fx-border-color: white;
-            -fx-border-width: 2;
-        """;
+
         hitButton.setStyle(buttonStyle);
         skipButton.setStyle(buttonStyle);
         // Button actions
@@ -92,8 +93,12 @@ public class TienLenGameScene<T extends TienLen> extends AbstractGamePlayScene<S
 
             Button showCard = new Button("Show your Cards");
             showCard.setOnAction(e -> {
+
                 ClickSound.play();
+                centerPane.getChildren().clear();  // Clear centerPane for update
                 playerCardShow(false);
+                lastPlayCardShow();
+                createActionButtons(false);  // Re-add buttons
             });
             showCard.setPrefSize(200, 40);
             showCard.setStyle(buttonStyle);
@@ -218,12 +223,18 @@ public class TienLenGameScene<T extends TienLen> extends AbstractGamePlayScene<S
 
     private void ifAiTurn() {
         if (game.getCurrentPlayer() instanceof AIPlayer<?, ?>) {
+            int preplayer = game.getCurrentPlayerIndex();
             PauseTransition pause = new PauseTransition();
             pause.setOnFinished(e -> {
                 AIPlayer<StandardCard, T> tempBot = (AIPlayer<StandardCard, T>) game.getCurrentPlayer();
                 ClickSound.play();
                 tempBot.makeMove(game);
                 if (game.isGameOver()) {
+
+                    StackPane[] destinations = { bottomPane, rightPane, topPane, leftPane };
+
+                    destinations[preplayer].getChildren().clear();
+
                     endGame();
                 } else {
                     updateScene();
@@ -236,7 +247,7 @@ public class TienLenGameScene<T extends TienLen> extends AbstractGamePlayScene<S
     private void endGame() {
         lastPlayCardShow();
 
-        String resultText = "Thứ tự xếp hạng chiến thắng: " + game.playerRankingToString();
+        String resultText = "Ranking:\n" + game.playerRankingToString();
         Label winnerLabel = new Label(resultText);
         winnerLabel.setFont(Font.font("Arial", 20));
         winnerLabel.setTextFill(Color.WHITE);
@@ -244,17 +255,6 @@ public class TienLenGameScene<T extends TienLen> extends AbstractGamePlayScene<S
         Button newGame = new Button("New Game");
         Button backButton = new Button("Back");
 
-        String buttonStyle = """
-            -fx-background-color: linear-gradient(to bottom, #FF5722, #E64A19);
-            -fx-text-fill: white;
-            -fx-font-size: 16px;
-            -fx-font-weight: bold;
-            -fx-padding: 10 20 10 20;
-            -fx-background-radius: 15;
-            -fx-border-radius: 15;
-            -fx-border-color: white;
-            -fx-border-width: 2px;
-        """;
 
         newGame.setStyle(buttonStyle);
         backButton.setStyle(buttonStyle);

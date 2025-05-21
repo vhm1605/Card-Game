@@ -199,7 +199,7 @@ public abstract class TienLen extends CardGame<StandardCard> implements Shedding
         StringBuilder builder = new StringBuilder();
         for (Integer rank : playerRanking) {
             i++;
-            builder.append("Rank " + i + ":Player ").append(rank).append(" ");
+            builder.append("Rank " + i + ":Player ").append(rank).append("\n");
         }
         return builder.toString();
     }
