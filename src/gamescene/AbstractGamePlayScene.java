@@ -1,6 +1,10 @@
 package gamescene;
 
 import imageaction.BackgroundImage;
+import imageaction.CardImage;
+import javafx.geometry.Pos;
+import javafx.scene.control.Label;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import soundaction.ClickSound;
@@ -74,10 +78,29 @@ public abstract class AbstractGamePlayScene<C extends CardType, G extends CardGa
             root.setBackground(new Background(new BackgroundFill(Color.DARKGREEN, null, null)));
         }
         setPanePadding();
-        createGameSpecificUI();
+        updateScene();
         return root;
     }
 
+    protected void addPlayerNameLabel(StackPane pane, String name, int index) {
+        Label nameLabel = new Label(name);
+        nameLabel.setStyle("-fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold;");
+        nameLabel.setPrefWidth(Region.USE_COMPUTED_SIZE);
+        nameLabel.setMinWidth(Region.USE_PREF_SIZE);
+
+        if (index == 2) {
+            StackPane.setAlignment(nameLabel, Pos.BOTTOM_CENTER);
+            StackPane.setMargin(nameLabel, new Insets(150, 0, 0, 0));
+        } else if (index == 0) {
+            StackPane.setAlignment(nameLabel, Pos.TOP_CENTER);
+            StackPane.setMargin(nameLabel, new Insets(0, 0, 140, 0));
+        } else {
+            StackPane.setAlignment(nameLabel, Pos.TOP_CENTER);
+            StackPane.setMargin(nameLabel, new Insets(20, 0, 5, 0));
+        }
+
+        pane.getChildren().add(nameLabel);
+    }
     private void setPanePadding() {
         bottomPane.setPadding(new Insets(10, 0, 10, 0));
         topPane.setPadding(new Insets(10, 0, 10, 0));
@@ -110,6 +133,5 @@ public abstract class AbstractGamePlayScene<C extends CardType, G extends CardGa
         primaryStage.getScene().setRoot(selectGameRoot);
     }
 
-    protected abstract void createGameSpecificUI();
     protected abstract void updateScene();
 }

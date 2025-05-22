@@ -9,6 +9,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import module.BaCayScoreStrategy;
 import module.Face;
 import module.StandardCard;
 import module.Suit;
@@ -90,13 +91,13 @@ public class GameConfigScene {
                 Parent gamePlayParent = scene.createGamePlay(primaryStage, isBasic);
                 primaryStage.getScene().setRoot(gamePlayParent);
             }
-//            else if (gameOption.id == 3) {
-//                DeckFactory<StandardCard> stdFactory = new EnumPairDeckFactory<>(Face.class, Suit.class, StandardCard::new);
-//                BaCay game = new BaCay(totalPlayers, botCount, new BaCayScoreStrategy(), stdFactory);
-//                ScoringGameScene<StandardCard, BaCay> scene = new ScoringGameScene<>(game);
-//                Parent playRoot = scene.createScene(primaryStage);
-//                primaryStage.getScene().setRoot(playRoot);
-//            }
+            else if (gameOption.id == 3) {
+                DeckFactory<StandardCard> stdFactory = new EnumPairDeckFactory<>(Face.class, Suit.class, StandardCard::new);
+                BaCay game = new BaCay(totalPlayers, botCount, new BaCayScoreStrategy(), stdFactory);
+                ScoringGameScene<BaCay> scene = new ScoringGameScene<>(game);
+                Parent playRoot = scene.createGamePlay(primaryStage, isBasic);
+                primaryStage.getScene().setRoot(playRoot);
+            }
         });
 
         Button backButton = createStyledButton("Quay lại", "#f44336", "#e57373");

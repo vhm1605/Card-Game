@@ -45,11 +45,7 @@ public class TienLenGameScene<T extends TienLen> extends AbstractGamePlayScene<S
         super(game);
     }
 
-    @Override
-    protected void createGameSpecificUI() {
-        createActionButtons(false);
-        createCenterPack();
-    }
+
 
     private void createActionButtons(boolean waiting) {
         Button hitButton = new Button("Hit");
@@ -67,8 +63,8 @@ public class TienLenGameScene<T extends TienLen> extends AbstractGamePlayScene<S
         skipButton.setStyle(buttonStyle);
         // Button actions
         hitButton.setOnAction(e -> {
+            ClickSound.play();
             if (game.isValidPlay()) {
-                ClickSound.play();
                 game.playGame();
                 if (game.isGameOver()) {
                     endGame();
@@ -102,7 +98,7 @@ public class TienLenGameScene<T extends TienLen> extends AbstractGamePlayScene<S
             });
             showCard.setPrefSize(200, 40);
             showCard.setStyle(buttonStyle);
-            buttonBox.getChildren().addAll(skipButton, hitButton, backButton, showCard);
+            buttonBox.getChildren().addAll(showCard, backButton);
         }
         else buttonBox.getChildren().addAll(skipButton, hitButton, backButton);
         buttonBox.setPadding(new Insets(10, 0, 10, 0));
@@ -111,14 +107,7 @@ public class TienLenGameScene<T extends TienLen> extends AbstractGamePlayScene<S
         StackPane.setMargin(buttonBox, new Insets(50, 0, 0, 0)); // Add 20px bottom margin
     }
 
-    private void createCenterPack() {
-        ImageView cardImage = CardImage.create(0, 0, isBasic);
-        cardImage.setOnMouseClicked(e -> {
-            ClickSound.play();
-            updateScene();
-        });
-        centerPane.getChildren().add(cardImage);
-    }
+
 
     @Override
     protected void updateScene() {
@@ -156,25 +145,7 @@ public class TienLenGameScene<T extends TienLen> extends AbstractGamePlayScene<S
             }
         }
     }
-    private void addPlayerNameLabel(StackPane pane, String name, int index) {
-        Label nameLabel = new Label(name);
-        nameLabel.setStyle("-fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold;");
-        nameLabel.setPrefWidth(Region.USE_COMPUTED_SIZE);
-        nameLabel.setMinWidth(Region.USE_PREF_SIZE);
 
-        if (index == 2) {
-            StackPane.setAlignment(nameLabel, Pos.BOTTOM_CENTER);
-            StackPane.setMargin(nameLabel, new Insets(150, 0, 0, 0));
-        } else if (index == 0) {
-            StackPane.setAlignment(nameLabel, Pos.TOP_CENTER);
-            StackPane.setMargin(nameLabel, new Insets(0, 0, 140, 0));
-        } else {
-            StackPane.setAlignment(nameLabel, Pos.TOP_CENTER);
-            StackPane.setMargin(nameLabel, new Insets(20, 0, 5, 0));
-        }
-
-        pane.getChildren().add(nameLabel);
-    }
     private void showPlayerCards(int playerIndex, StackPane pane) {
         Player<StandardCard> player = game.getPlayers().get(playerIndex);
         int handSize = player.getHandSize();
@@ -260,6 +231,7 @@ public class TienLenGameScene<T extends TienLen> extends AbstractGamePlayScene<S
         backButton.setStyle(buttonStyle);
 
         newGame.setOnAction(e -> {
+            ClickSound.play();
             updateScene();
         });
         backButton.setOnAction(e -> handleBackAction());
