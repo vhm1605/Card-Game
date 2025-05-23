@@ -26,27 +26,27 @@ import java.util.List;
 public class TienLenGameScene<T extends TienLen> extends AbstractGamePlayScene<StandardCard, T> {
     private HBox buttonBox;
     private String buttonStyle = """
-            -fx-background-color: linear-gradient(to right, #FF5722, #E64A19);
-            -fx-text-fill: white;
-            -fx-font-size: 16px;
-            -fx-font-weight: bold;
-            -fx-background-radius: 20;
-            -fx-border-radius: 20;
-            -fx-border-color: white;
-            -fx-border-width: 2;
-        """;
+			    -fx-background-color: linear-gradient(to right, #FF5722, #E64A19);
+			    -fx-text-fill: white;
+			    -fx-font-size: 16px;
+			    -fx-font-weight: bold;
+			    -fx-background-radius: 20;
+			    -fx-border-radius: 20;
+			    -fx-border-color: white;
+			    -fx-border-width: 2;
+			""";
 
     public TienLenGameScene(T game) {
         super(game);
     }
 
-
-
     private void createActionButtons(boolean waiting) {
+        uiLayer.getChildren().removeIf(n -> "overlay".equals(n.getUserData()));
+        centerPane.getChildren().removeIf(n -> "overlay".equals(n.getUserData()));
+
         Button hitButton = new Button("Hit");
         Button skipButton = new Button("Skip");
-        Button backButton = createOutButton();  // Use superclass method
-
+        Button backButton = createOutButton(); // Use superclass method
 
         // Set button sizes for hit and skip (backButton size set in superclass)
         hitButton.setPrefSize(150, 40);
@@ -79,42 +79,47 @@ public class TienLenGameScene<T extends TienLen> extends AbstractGamePlayScene<S
         // backButton action already set in createBackButton()
 
         // Create HBox and add all buttons
-        buttonBox = new HBox(20);  // Spacing between buttons
-        if(waiting) {
+        buttonBox = new HBox(20); // Spacing between buttons
+
+        buttonBox.setUserData("buttonBar");
+        buttonBox.setMouseTransparent(false);
+        if (waiting) {
 
             Button showCard = new Button("Show your Cards");
             showCard.setOnAction(e -> {
 
                 ClickSound.play();
-                centerPane.getChildren().clear();  // Clear centerPane for update
+                centerPane.getChildren().clear(); // Clear centerPane for update
                 playerCardShow(false);
                 lastPlayCardShow();
-                createActionButtons(false);  // Re-add buttons
+                createActionButtons(false); // Re-add buttons
             });
             showCard.setPrefSize(200, 40);
             showCard.setStyle(buttonStyle);
             buttonBox.getChildren().addAll(showCard, backButton);
-        }
-        else buttonBox.getChildren().addAll(skipButton, hitButton, backButton);
+        } else
+            buttonBox.getChildren().addAll(skipButton, hitButton, backButton);
         buttonBox.setPadding(new Insets(10, 0, 10, 0));
-        centerPane.getChildren().add(buttonBox);
-        StackPane.setAlignment(buttonBox, Pos.BOTTOM_CENTER);  // Position at bottom
+
+        buttonBox.setUserData("overlay");
+        uiLayer.getChildren().add(buttonBox);
+        StackPane.setAlignment(buttonBox, Pos.BOTTOM_CENTER); // Position at bottom
         StackPane.setMargin(buttonBox, new Insets(50, 0, 0, 0)); // Add 20px bottom margin
     }
 
-
-
     @Override
     protected void updateScene() {
-        if(pressBack == true) return;
-        centerPane.getChildren().clear();  // Clear centerPane for update
+        if (pressBack == true)
+            return;
+        uiLayer.getChildren().removeIf(n -> "overlay".equals(n.getUserData()));
+        centerPane.getChildren().clear(); // Clear centerPane for update
+
         if (game.getCurrentPlayer() instanceof AIPlayer<?, ?>) {
             playerCardShow(false);
             lastPlayCardShow();
-            createActionButtons(false);  // Re-add buttons
+            createActionButtons(false); // Re-add buttons
             ifAiTurn();
-        }
-        else {
+        } else {
             playerCardShow(true);
             lastPlayCardShow();
             createActionButtons(true);
@@ -123,21 +128,26 @@ public class TienLenGameScene<T extends TienLen> extends AbstractGamePlayScene<S
 
     private void playerCardShow(boolean waiting) {
         List<Player<StandardCard>> players = game.getPlayers();
-        StackPane[] destinations = { bottomPane, rightPane, topPane, leftPane };
-        String[] playerNames = {"Player 1", "Player 2", "Player 3", "Player 4"};
 
         for (int i = 0; i < players.size(); i++) {
-            destinations[i].getChildren().clear();
-            addPlayerNameLabel(destinations[i], playerNames[i], i);
+
+            StackPane seat = playerPanes.get(i);
+
+            seat.getChildren().clear();
+            addPlayerNameLabel(seat, "Player " + (i + 1), i);
+            if (seat == null) {
+                continue;
+            }
 
             if (i == game.getCurrentPlayerIndex() && !waiting) {
                 while (game.getCurrentPlayer().getState() != PlayerState.IN_ROUND) {
                     game.moveToNextPlayer();
                 }
-                showPlayerCards(i, destinations[i]);
+                showPlayerCards(i, seat);
             } else {
-                showHiddenCards(i, destinations[i]);
+                showHiddenCards(i, seat);
             }
+
         }
     }
 
@@ -169,6 +179,7 @@ public class TienLenGameScene<T extends TienLen> extends AbstractGamePlayScene<S
             }
         }
     }
+
     private void showHiddenCards(int playerIndex, StackPane pane) {
         Player<StandardCard> player = game.getPlayers().get(playerIndex);
         int handSize = player.getHandSize();
@@ -177,7 +188,6 @@ public class TienLenGameScene<T extends TienLen> extends AbstractGamePlayScene<S
             pane.getChildren().add(CardImage.create(j, handSize, isBasic));
         }
     }
-
 
     private void lastPlayCardShow() {
         CardCollection<StandardCard> lastPlay = game.getLastPlayedCards();
@@ -197,10 +207,10 @@ public class TienLenGameScene<T extends TienLen> extends AbstractGamePlayScene<S
                 tempBot.makeMove(game);
                 if (game.isGameOver()) {
 
-                    StackPane[] destinations = { bottomPane, rightPane, topPane, leftPane };
+                    StackPane seat = playerPanes.get(preplayer);
 
-                    destinations[preplayer].getChildren().clear();
-
+                    seat.getChildren().clear();
+                    addPlayerNameLabel(seat, "Player " + (preplayer + 1), preplayer);
                     endGame();
                 } else {
                     updateScene();
@@ -221,7 +231,6 @@ public class TienLenGameScene<T extends TienLen> extends AbstractGamePlayScene<S
         Button newGame = new Button("New Game");
         Button backButton = new Button("Back");
 
-
         newGame.setStyle(buttonStyle);
         backButton.setStyle(buttonStyle);
 
@@ -235,10 +244,15 @@ public class TienLenGameScene<T extends TienLen> extends AbstractGamePlayScene<S
         buttonBox.getChildren().addAll(newGame, backButton);
         buttonBox.setPadding(new Insets(10, 0, 0, 0));
 
+        // wipe previous buttons / ranking, keep the seats
+        uiLayer.getChildren().removeIf(n -> !playerPanes.containsValue(n));
+
         VBox vbox = new VBox(10);
         vbox.getChildren().addAll(winnerLabel, buttonBox);
         vbox.setPadding(new Insets(20));
-        centerPane.getChildren().addAll(vbox);
+        vbox.setUserData("overlay");
+        vbox.setMouseTransparent(false);
+        uiLayer.getChildren().add(vbox);
 
         game.resetGame();
     }

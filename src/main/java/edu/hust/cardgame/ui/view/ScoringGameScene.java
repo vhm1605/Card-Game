@@ -1,6 +1,8 @@
 // src/gamescene/ScoringGameScene.java
 package main.java.edu.hust.cardgame.ui.view;
 
+import javafx.scene.effect.DropShadow;
+import javafx.scene.image.ImageView;
 import main.java.edu.hust.cardgame.logic.bacay.BaCay;
 import main.java.edu.hust.cardgame.assets.imageaction.CardImage;
 import javafx.geometry.Insets;
@@ -28,131 +30,153 @@ import java.util.Map;
  *   2) is a ScoringGame<C> (so we can getScoreFor/getRanking)
  */
 public class ScoringGameScene<T extends BaCay> extends AbstractGamePlayScene<StandardCard, T> {
-    private HBox buttonBox;
-    private String buttonStyle = """
-            -fx-background-color: linear-gradient(to right, #FF5722, #E64A19);
-            -fx-text-fill: white;
-            -fx-font-size: 16px;
-            -fx-font-weight: bold;
-            -fx-background-radius: 20;
-            -fx-border-radius: 20;
-            -fx-border-color: white;
-            -fx-border-width: 2;
-        """;
-    Map<Integer, Integer> scores = new HashMap<>();
+    private final String buttonStyle = """
+			    -fx-background-color: linear-gradient(to right, #FF5722, #E64A19);
+			    -fx-text-fill: white;
+			    -fx-font-size: 16px;
+			    -fx-font-weight: bold;
+			    -fx-background-radius: 20;
+			    -fx-border-radius: 20;
+			    -fx-border-color: white;
+			    -fx-border-width: 2;
+			""";
+
+    private final Map<Integer, Integer> scores = new HashMap<>();
     private int turn = 0;
+
     public ScoringGameScene(T game) {
         super(game);
     }
+
     @Override
     protected void updateScene() {
         centerPane.getChildren().clear();
-        playerCardShow();
-        createActionButtons();
-    }
-    private void playerCardShow() {
+
+        uiLayer.getChildren().removeIf(n -> {
+            Object tag = n.getUserData();
+            return "buttonBar".equals(tag) || "ranking".equals(tag);
+        });
         List<Player<StandardCard>> players = game.getPlayers();
-        StackPane[] destinations = {bottomPane, rightPane, topPane, leftPane};
-        String[] playerNames = {"Player 1", "Player 2", "Player 3", "Player 4"};
+        int total = players.size();
 
-        for (int i = 0; i < game.getPlayers().size(); i++) {
+        // 1) Seat layout: cards + "Player X - Y pts" below
+        for (int i = 0; i < total; i++) {
+            StackPane seat = playerPanes.get(i);
+            seat.getChildren().clear();
 
-            destinations[i].getChildren().clear();
-            addPlayerNameLabel(destinations[i], playerNames[i], i);
-            Player<StandardCard> p = game.getPlayers().get(i);
-            List<StandardCard> cardofp = p.getAllCards();
-            for(int j = 0; j < 3; j++)
-            {
-                if(i<turn) destinations[i].getChildren().add(CardImage.create(j, 3, cardofp.get(j),  isBasic));
-                else destinations[i].getChildren().add(CardImage.create(j, 3,  isBasic));
+            // a) cards row
+            HBox cards = new HBox(total > 4 ? 2 : 10);
+            cards.setAlignment(Pos.CENTER);
+            for (int j = 0; j < 3; j++) {
+                ImageView iv = (i < turn) ? CardImage.create(j, 3, players.get(i).getAllCards().get(j), isBasic)
+                        : CardImage.create(j, 3, isBasic);
+                double scale = total > 4 ? 0.65 : 1.0;
+                iv.setFitWidth(80 * scale);
+                iv.setFitHeight(100 * scale);
+                cards.getChildren().add(iv);
             }
-            int score = game.getScoreFor(p);
-            scores.put(i+1, score);
 
+            // b) name+score label
+            int pts = (i < turn) ? game.getScoreFor(players.get(i)) : 0;
+            scores.put(i, pts);
+
+            Label lbl = new Label(String.format("Player %d – %d pts", i + 1, pts));
+            lbl.setTextFill(Color.GOLD);
+            lbl.setFont(Font.font(total > 4 ? 14 : 18));
+            DropShadow ds = new DropShadow();
+            ds.setOffsetY(1);
+            ds.setColor(Color.BLACK);
+            lbl.setEffect(ds);
+
+            // c) stack vertically
+            VBox seatBox = new VBox(5, cards, lbl);
+            seatBox.setAlignment(Pos.CENTER);
+
+            seat.getChildren().add(seatBox);
         }
-    }
 
+        // 2) Bottom controls
+        HBox buttonBox = new HBox(20);
+        buttonBox.setUserData("buttonBar");
+        buttonBox.setAlignment(Pos.CENTER);
+        buttonBox.setPadding(new Insets(10, 0, 20, 0));
 
-    private void createActionButtons() {
-        if(turn < game.getPlayers().size()) {
-            Button showButton = new Button("Show Card");
-            Button backButton = createOutButton();
-
-
-            // Set button sizes for hit and skip (backButton size set in superclass)
-            showButton.setPrefSize(150, 40);
-            showButton.setStyle(buttonStyle);
-            showButton.setOnAction(e -> {
-                turn++;
-                updateScene();
-            });
-            buttonBox = new HBox(20);
-            buttonBox.getChildren().addAll(showButton, backButton);
-            buttonBox.setPadding(new Insets(10, 0, 10, 0));
-            centerPane.getChildren().add(buttonBox);
-            StackPane.setAlignment(buttonBox, Pos.BOTTOM_CENTER);  // Position at bottom
-            StackPane.setMargin(buttonBox, new Insets(50, 0, 0, 0));
-        }
-        else
-        {
-            Button showButton = new Button("Show Results");
-            Button backButton = createOutButton();
-
-
-            // Set button sizes for hit and skip (backButton size set in superclass)
-            showButton.setPrefSize(150, 40);
-            showButton.setStyle(buttonStyle);
-            showButton.setOnAction(e -> {
+        if (turn < total) {
+            Button show = new Button("Show Card");
+            styleAndRefresh(show, () -> turn++);
+            buttonBox.getChildren().setAll(show, createOutButton());
+        } else {
+            // Show results only once
+            Button results = new Button("Show Results");
+            results.setPrefSize(150, 40);
+            results.setStyle(buttonStyle);
+            results.setOnAction(e -> {
                 ClickSound.play();
-                centerPane.getChildren().clear();
-                endGame();
+                renderResults(); // no updateScene() here
             });
-            buttonBox = new HBox(20);
-            buttonBox.getChildren().addAll(showButton, backButton);
-            buttonBox.setPadding(new Insets(10, 0, 10, 0));
-            centerPane.getChildren().add(buttonBox);
-            StackPane.setAlignment(buttonBox, Pos.BOTTOM_CENTER);  // Position at bottom
-            StackPane.setMargin(buttonBox, new Insets(50, 0, 0, 0));
+            buttonBox.getChildren().setAll(results, createOutButton());
         }
+
+        uiLayer.getChildren().add(buttonBox);
+        StackPane.setAlignment(buttonBox, Pos.BOTTOM_CENTER);
     }
 
-    private void endGame(){
-        List<Map.Entry<Integer, Integer>> ranking = new ArrayList<>(scores.entrySet());
-
-// Sắp xếp theo giá trị (score) giảm dần
-        ranking.sort((e1, e2) -> e2.getValue().compareTo(e1.getValue()));
-
-// Hiển thị ranking
-        String resultText = "Ranking:\n";
-        for (int rank = 0; rank < ranking.size(); rank++) {
-            int playerIndex = ranking.get(rank).getKey();
-            int score = ranking.get(rank).getValue();
-            resultText += "Rank " + (rank + 1) + ": Player " + playerIndex + " with score: " + score + "\n";
-        }
-        Label winnerLabel = new Label(resultText);
-        winnerLabel.setFont(Font.font("Arial", 20));
-        winnerLabel.setTextFill(Color.WHITE);
-
-        Button newGame = new Button("New Game");
-        Button backButton = new Button("Back");
-
-
-        newGame.setStyle(buttonStyle);
-        backButton.setStyle(buttonStyle);
-
-        newGame.setOnAction(e -> {
+    private void styleAndRefresh(Button b, Runnable action) {
+        b.setPrefSize(150, 40);
+        b.setStyle(buttonStyle);
+        b.setOnAction(e -> {
+            ClickSound.play();
+            action.run();
             updateScene();
         });
-        backButton.setOnAction(e -> handleBackAction());
+    }
 
-        HBox buttonBox = new HBox(20);
-        buttonBox.getChildren().addAll(newGame, backButton);
-        buttonBox.setPadding(new Insets(10, 0, 0, 0));
+    private void renderResults() {
 
-        VBox vbox = new VBox(10);
-        vbox.getChildren().addAll(winnerLabel, buttonBox);
-        vbox.setPadding(new Insets(20));
-        centerPane.getChildren().addAll(vbox);
+        // 2) Clear only the previous button row
+        uiLayer.getChildren().removeIf(n -> "ranking".equals(n.getUserData()));
+        uiLayer.getChildren().removeIf(n -> "buttonBar".equals(n.getUserData()));
+        // centerPane.getChildren().clear(); // you can clear last-play if you like
+
+        // 3) Build your ranking summary
+        List<Map.Entry<Integer, Integer>> rank = new ArrayList<>(scores.entrySet());
+        rank.sort((a, b) -> b.getValue().compareTo(a.getValue()));
+
+        StringBuilder sb = new StringBuilder("Final Ranking:\n");
+        for (int i = 0; i < rank.size(); i++) {
+            var e = rank.get(i);
+            sb.append(String.format("%d. Player %d – %d pts%n", i + 1, e.getKey() + 1, e.getValue()));
+        }
+
+        Label summary = new Label(sb.toString());
+        summary.setTextFill(Color.WHITE);
+        summary.setFont(Font.font(20));
+
+        // 4) Build controls
+        Button newGame = new Button("New Game");
+        styleAndRefresh(newGame, () -> {
+            turn = 0;
+            scores.clear();
+        });
+
+        Button out = createOutButton();
+        // (this one navigates back immediately)
+
+        HBox ctrls = new HBox(20, newGame, out);
+        ctrls.setAlignment(Pos.CENTER);
+        ctrls.setPadding(new Insets(20, 0, 0, 0));
+
+        VBox box = new VBox(10, summary, ctrls);
+        box.setAlignment(Pos.CENTER);
+        box.setUserData("ranking");
+        uiLayer.getChildren().add(box);
+
+        if (!uiLayer.getChildren().contains(box)) {
+            uiLayer.getChildren().add(box);
+
+        }
+
+        StackPane.setAlignment(box, Pos.CENTER);
 
         game.resetGame();
     }

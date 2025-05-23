@@ -1,22 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 
-<?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.StackPane?>
+<StackPane xmlns="http://javafx.com/javafx/23.0.1"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="main.java.edu.hust.cardgame.ui.view.GameSceneController"
+           prefWidth="1280" prefHeight="720">
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="main.java.edu.hust.cardgame.ui.view.GameSceneController">
-    <top>
-        <StackPane fx:id="topPane" prefHeight="100.0" prefWidth="600.0" BorderPane.alignment="CENTER" />
-    </top>
-    <left>
-        <StackPane fx:id="leftPane" prefHeight="200.0" prefWidth="200" BorderPane.alignment="CENTER" />
-    </left>
-    <right>
-        <StackPane fx:id="rightPane" prefHeight="200.0" prefWidth="200" BorderPane.alignment="CENTER" />
-    </right>
-    <bottom>
-        <StackPane fx:id="bottomPane" prefHeight="100.0" prefWidth="600.0" BorderPane.alignment="CENTER" />
-    </bottom>
-    <center>
-        <StackPane fx:id="centerPane" prefHeight="200.0" prefWidth="269.0" BorderPane.alignment="CENTER" />
-    </center>
-</BorderPane>
+    <!-- background + central play area -->
+    <children>
+        <BorderPane fx:id="borderPane">
+            <center>
+                <StackPane fx:id="centerPane"/>
+            </center>
+        </BorderPane>
+
+        <!-- layer that holds the seat StackPanes -->
+        <Pane fx:id="playerLayer">
+
+            <!-- overlay pane for buttons / dialogs; added LAST so it’s on top -->
+            <children>
+                <Pane fx:id="uiLayer" pickOnBounds="false"/>
+            </children>
+
+        </Pane>
+    </children>
+</StackPane>

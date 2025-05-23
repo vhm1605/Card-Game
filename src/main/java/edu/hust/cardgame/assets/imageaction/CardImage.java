@@ -49,7 +49,7 @@ public class CardImage {
         try {
             ImageView cardImg;
             cardImg = new ImageView(new Image(
-                    CardImage.class.getResource("/resources/card/" + card.toString() + ".png").toExternalForm()));
+                    CardImage.class.getResource("/main/resources/card/" + card.toString() + ".png").toExternalForm()));
             cardImg.setFitWidth(80);
             cardImg.setFitHeight(100);
             cardImg.setTranslateX(j * 20 - 10 * size);

@@ -15,10 +15,8 @@ import java.util.List;
 public class SelectGame {
 
     // Danh sách các game hỗ trợ
-    public static final List<GameOption> gameOptions = List.of(
-            new GameOption("Tiến lên miền Nam", 1, 4, 13),
-            new GameOption("Tiến lên miền Bắc", 2, 4, 13),
-            new GameOption("Ba Cây",          3, 4,  3)
+    public static final List<GameOption> gameOptions = List.of(new GameOption("Tiến lên miền Nam", 1, 4, 13),
+            new GameOption("Tiến lên miền Bắc", 2, 4, 13), new GameOption("Ba Cây", 3, 8, 3)
             // 👉 Thêm game mới tại đây nếu cần
             // new GameOption("Phỏm", 3, 4)
     );
@@ -34,15 +32,15 @@ public class SelectGame {
             Button button = new Button(game.name);
             button.setPrefSize(300, 50);
             button.setStyle("""
-                -fx-background-color: linear-gradient(to right, #FFD700, #FFA500);
-                -fx-text-fill: white;
-                -fx-font-size: 16px;
-                -fx-font-weight: bold;
-                -fx-background-radius: 25;
-                -fx-border-radius: 25;
-                -fx-border-color: white;
-                -fx-border-width: 2;
-            """);
+					    -fx-background-color: linear-gradient(to right, #FFD700, #FFA500);
+					    -fx-text-fill: white;
+					    -fx-font-size: 16px;
+					    -fx-font-weight: bold;
+					    -fx-background-radius: 25;
+					    -fx-border-radius: 25;
+					    -fx-border-color: white;
+					    -fx-border-width: 2;
+					""");
 
             button.setOnAction(e -> {
                 ClickSound.play();
