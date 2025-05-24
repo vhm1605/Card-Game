@@ -4,7 +4,6 @@ import javafx.application.Platform;
 import main.java.edu.hust.cardgame.assets.imageaction.BackgroundImage;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
-import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import main.java.edu.hust.cardgame.assets.soundaction.ClickSound;
 import main.java.edu.hust.cardgame.model.CardType;
@@ -21,14 +20,13 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 
 import java.io.IOException;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 //import javafx.scene.layout.Pane;
 //import game.engine.CardGame; // Placeholder, replace with your actual game engine's base class/interface
 //import game.engine.CardType; // Placeholder
 
-public abstract class AbstractGamePlayScene<C extends CardType, G extends CardGame<C>> {
+public abstract class GameScene<C extends CardType, G extends CardGame<C>> {
     protected Stage primaryStage;
     protected boolean isBasic;
     protected boolean pressBack = false;
@@ -47,7 +45,7 @@ public abstract class AbstractGamePlayScene<C extends CardType, G extends CardGa
     protected StackPane topPane;
     protected StackPane leftPane;
 
-    public AbstractGamePlayScene(G game) {
+    public GameScene(G game) {
         this.game = game;
     }
 
@@ -132,7 +130,7 @@ public abstract class AbstractGamePlayScene<C extends CardType, G extends CardGa
 
             seat.setPrefSize(seatSize, seatSize);
 
-            double angle = 2 * Math.PI * i / count - Math.PI / 2;
+            double angle = -(2 * Math.PI * i / count - Math.PI / 2);
             double x = cx + radiusX * Math.cos(angle) - seatSize / 2;
             double y = cy + radiusY * Math.sin(angle) - seatSize / 2;
             seat.setLayoutX(x);

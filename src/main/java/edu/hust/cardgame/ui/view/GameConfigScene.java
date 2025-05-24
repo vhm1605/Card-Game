@@ -21,8 +21,6 @@ import main.java.edu.hust.cardgame.model.StandardCard;
 import main.java.edu.hust.cardgame.model.Suit;
 import main.java.edu.hust.cardgame.assets.soundaction.ClickSound;
 
-import java.util.List;
-
 
 public class GameConfigScene {
 
@@ -98,7 +96,7 @@ public class GameConfigScene {
                 DeckFactory<StandardCard> stdFactory = new EnumPairDeckFactory<>(Face.class, Suit.class,
                         StandardCard::new);
                 BaCay game = new BaCay(totalPlayers, botCount, new BaCayScoreStrategy(), stdFactory);
-                ScoringGameScene<BaCay> scene = new ScoringGameScene<>(game);
+                BaCayGameScene<BaCay> scene = new BaCayGameScene<>(game);
                 Parent playRoot = scene.createGamePlay(primaryStage, isBasic);
                 primaryStage.getScene().setRoot(playRoot);
             }

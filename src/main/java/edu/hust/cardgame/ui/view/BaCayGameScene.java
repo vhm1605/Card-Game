@@ -1,6 +1,7 @@
 // src/gamescene/ScoringGameScene.java
 package main.java.edu.hust.cardgame.ui.view;
 
+import javafx.application.Platform;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.image.ImageView;
 import main.java.edu.hust.cardgame.logic.bacay.BaCay;
@@ -29,7 +30,7 @@ import java.util.Map;
  *   1) is a CardGame<C> (so we can deal/reset/getPlayers)
  *   2) is a ScoringGame<C> (so we can getScoreFor/getRanking)
  */
-public class ScoringGameScene<T extends BaCay> extends AbstractGamePlayScene<StandardCard, T> {
+public class BaCayGameScene<T extends BaCay> extends GameScene<StandardCard, T> {
     private final String buttonStyle = """
 			    -fx-background-color: linear-gradient(to right, #FF5722, #E64A19);
 			    -fx-text-fill: white;
@@ -44,7 +45,7 @@ public class ScoringGameScene<T extends BaCay> extends AbstractGamePlayScene<Sta
     private final Map<Integer, Integer> scores = new HashMap<>();
     private int turn = 0;
 
-    public ScoringGameScene(T game) {
+    public BaCayGameScene(T game) {
         super(game);
     }
 
@@ -151,6 +152,7 @@ public class ScoringGameScene<T extends BaCay> extends AbstractGamePlayScene<Sta
         Label summary = new Label(sb.toString());
         summary.setTextFill(Color.WHITE);
         summary.setFont(Font.font(20));
+//		summary.setTextAlignment(TextAlignment.CENTER);
 
         // 4) Build controls
         Button newGame = new Button("New Game");
@@ -176,8 +178,18 @@ public class ScoringGameScene<T extends BaCay> extends AbstractGamePlayScene<Sta
 
         }
 
-        StackPane.setAlignment(box, Pos.CENTER);
+        Runnable centerBox = () -> {
+            double x = (uiLayer.getWidth() - box.getBoundsInParent().getWidth()) / 2;
+            double y = (uiLayer.getHeight() - box.getBoundsInParent().getHeight()) / 2;
+            box.setLayoutX(Math.max(x, 0));
+            box.setLayoutY(Math.max(y, 0));
+        };
 
-        game.resetGame();
+        Platform.runLater(centerBox);
+
+        box.layoutBoundsProperty().addListener((o, ov, nv) -> centerBox.run());
+
+        uiLayer.widthProperty().addListener((o, oldV, newV) -> centerBox.run());
+        uiLayer.heightProperty().addListener((o, oldV, newV) -> centerBox.run());
     }
 }

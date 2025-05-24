@@ -23,7 +23,7 @@ import main.java.edu.hust.cardgame.assets.soundaction.ClickSound; // Assuming th
 
 import java.util.List;
 
-public class TienLenGameScene<T extends TienLen> extends AbstractGamePlayScene<StandardCard, T> {
+public class TienLenGameScene<T extends TienLen> extends GameScene<StandardCard, T> {
     private HBox buttonBox;
     private String buttonStyle = """
 			    -fx-background-color: linear-gradient(to right, #FF5722, #E64A19);
