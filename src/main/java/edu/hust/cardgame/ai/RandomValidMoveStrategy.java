@@ -1,14 +1,12 @@
 package main.java.edu.hust.cardgame.ai;
 
-import main.java.edu.hust.cardgame.model.CardCollection;
-import main.java.edu.hust.cardgame.model.CardType;
-import main.java.edu.hust.cardgame.model.Player;
-import main.java.edu.hust.cardgame.core.SheddingGame;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
+import main.java.edu.hust.cardgame.core.SheddingGame;
+import main.java.edu.hust.cardgame.model.CardCollection;
+import main.java.edu.hust.cardgame.model.CardType;
+import main.java.edu.hust.cardgame.model.Player;
 
 
 public class RandomValidMoveStrategy<C extends CardType, G extends SheddingGame<C>> implements AIStrategy<C, G> {
@@ -22,40 +20,42 @@ public class RandomValidMoveStrategy<C extends CardType, G extends SheddingGame<
     public CardCollection<C> decideMove(G game, Player<C> ai) {
         List<C> hand = new ArrayList<>(game.getHandOf(ai).getAllCards());
         int handSize = hand.size();
-        int lastSize = game.getSelectedCards().getSize();
-        // if nobody has played yet, we still try at least 1 card
-        int desired  = (lastSize > 0) ? Math.min(lastSize, handSize) : 1;
+        int lastSize = game.getLastPlayedCards().getSize();
+        int desired = (lastSize > 0) ? Math.min(lastSize, handSize) : 1;
 
-        for (int attempt = 1; attempt <= maxAttempts; attempt++) {
-            Collections.shuffle(hand);
+        // Generate all possible combinations of 'desired' size
+        List<List<C>> combos = new ArrayList<>();
+        generateCombos(hand, desired, 0, new ArrayList<>(), combos);
 
-            // build a candidate of exactly 'desired' cards
+        // Shuffle for randomness
+        Collections.shuffle(combos);
+
+        for (List<C> combo : combos) {
             CardCollection<C> candidate = new CardCollection<>();
-            for (int i = 0; i < desired; i++) {
-                candidate.addCard(hand.get(i));
-            }
+            combo.forEach(candidate::addCard);
 
-            // log what we're testing vs. what the table has
-            String pickStr = candidate.getAllCards().stream()
-                    .map(C::toString)
-                    .collect(Collectors.joining(","));
-            String lastStr = game.getSelectedCards().getAllCards().stream()
-                    .map(C::toString)
-                    .collect(Collectors.joining(","));
-            System.out.printf("[Random] AI %s attempt %d → [%s] vs last [%s]%n",
-                    ai.getName(), attempt, pickStr, lastStr);
-
-            // try it
+            // Try it
             game.getSelectedCards().empty();
             candidate.getAllCards().forEach(game.getSelectedCards()::addCard);
             if (game.isValidPlay()) {
-                System.out.printf("[Random] AI %s plays [%s]%n%n", ai.getName(), pickStr);
                 return candidate;
             }
         }
 
-        // if we never found a valid play, pass
-        System.out.printf("[Random] AI %s passes%n%n", ai.getName());
+        // If no valid play found, pass
         return new CardCollection<>();
+    }
+
+    // Helper method to generate combinations
+    private void generateCombos(List<C> hand, int desired, int start, List<C> path, List<List<C>> out) {
+        if (path.size() == desired) {
+            out.add(new ArrayList<>(path));
+            return;
+        }
+        for (int i = start; i < hand.size(); i++) {
+            path.add(hand.get(i));
+            generateCombos(hand, desired, i + 1, path, out);
+            path.remove(path.size() - 1);
+        }
     }
 }

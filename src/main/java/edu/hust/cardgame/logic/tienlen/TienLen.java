@@ -7,6 +7,7 @@ import main.java.edu.hust.cardgame.ai.AIPlayer;
 import main.java.edu.hust.cardgame.ai.AIStrategy;
 import main.java.edu.hust.cardgame.ai.BacktrackingStrategy;
 import main.java.edu.hust.cardgame.ai.RandomValidMoveStrategy;
+import main.java.edu.hust.cardgame.ai.GreedyStrategy;
 import main.java.edu.hust.cardgame.core.CardGame;
 import main.java.edu.hust.cardgame.core.DeckFactory;
 import main.java.edu.hust.cardgame.core.SheddingGame;
@@ -38,7 +39,7 @@ public abstract class TienLen extends CardGame<StandardCard> implements Shedding
     public void deal() {
         players.clear();
 
-        AIStrategy<StandardCard, SheddingGame<StandardCard>> aiStrategy = createAIStrategy(2);
+        AIStrategy<StandardCard, SheddingGame<StandardCard>> aiStrategy = createAIStrategy(1);
 
         int numberOfHumanPlayers = numberOfPlayers - numberOfAIPlayers;
         for (int i = 0; i < numberOfHumanPlayers; i++) {
@@ -61,7 +62,7 @@ public abstract class TienLen extends CardGame<StandardCard> implements Shedding
         return switch (aiMode) {
             case 1 -> new RandomValidMoveStrategy<>(1000);
             case 2 -> new BacktrackingStrategy<>();
-            // case 3 -> new SomethingStrategy<>(10000);
+            case 3 -> new GreedyStrategy<>();
             default -> new RandomValidMoveStrategy<>(1000);
         };
     }
