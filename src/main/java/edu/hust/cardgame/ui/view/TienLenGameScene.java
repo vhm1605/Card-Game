@@ -40,7 +40,7 @@ public class TienLenGameScene<T extends TienLen> extends GameScene<StandardCard,
         super(game);
     }
 
-    private void createActionButtons(boolean waiting) {
+    private void createActionButtons(boolean waitToPressShow) {
         uiLayer.getChildren().removeIf(n -> "overlay".equals(n.getUserData()));
         centerPane.getChildren().removeIf(n -> "overlay".equals(n.getUserData()));
 
@@ -83,7 +83,7 @@ public class TienLenGameScene<T extends TienLen> extends GameScene<StandardCard,
 
         buttonBox.setUserData("buttonBar");
         buttonBox.setMouseTransparent(false);
-        if (waiting) {
+        if (waitToPressShow) {
 
             Button showCard = new Button("Show your Cards");
             showCard.setOnAction(e -> {
@@ -118,7 +118,24 @@ public class TienLenGameScene<T extends TienLen> extends GameScene<StandardCard,
             playerCardShow(false);
             lastPlayCardShow();
             createActionButtons(false); // Re-add buttons
-            ifAiTurn();
+            int preplayer = game.getCurrentPlayerIndex();
+            PauseTransition pause = new PauseTransition();
+            pause.setOnFinished(e -> {
+                AIPlayer<StandardCard, T> tempBot = (AIPlayer<StandardCard, T>) game.getCurrentPlayer();
+                ClickSound.play();
+                tempBot.makeMove(game);
+                if (game.isGameOver()) {
+
+                    StackPane seat = playerPanes.get(preplayer);
+
+                    seat.getChildren().clear();
+                    addPlayerNameLabel(seat, "Player " + (preplayer + 1), preplayer);
+                    endGame();
+                } else {
+                    updateScene();
+                }
+            });
+            pause.play();
         } else {
             playerCardShow(true);
             lastPlayCardShow();
@@ -126,7 +143,7 @@ public class TienLenGameScene<T extends TienLen> extends GameScene<StandardCard,
         }
     }
 
-    private void playerCardShow(boolean waiting) {
+    private void playerCardShow(boolean waitToPressShow) {
         List<Player<StandardCard>> players = game.getPlayers();
 
         for (int i = 0; i < players.size(); i++) {
@@ -139,7 +156,7 @@ public class TienLenGameScene<T extends TienLen> extends GameScene<StandardCard,
                 continue;
             }
 
-            if (i == game.getCurrentPlayerIndex() && !waiting) {
+            if (i == game.getCurrentPlayerIndex() && !waitToPressShow) {
                 while (game.getCurrentPlayer().getState() != PlayerState.IN_ROUND) {
                     game.moveToNextPlayer();
                 }
@@ -197,28 +214,6 @@ public class TienLenGameScene<T extends TienLen> extends GameScene<StandardCard,
         }
     }
 
-    private void ifAiTurn() {
-        if (game.getCurrentPlayer() instanceof AIPlayer<?, ?>) {
-            int preplayer = game.getCurrentPlayerIndex();
-            PauseTransition pause = new PauseTransition();
-            pause.setOnFinished(e -> {
-                AIPlayer<StandardCard, T> tempBot = (AIPlayer<StandardCard, T>) game.getCurrentPlayer();
-                ClickSound.play();
-                tempBot.makeMove(game);
-                if (game.isGameOver()) {
-
-                    StackPane seat = playerPanes.get(preplayer);
-
-                    seat.getChildren().clear();
-                    addPlayerNameLabel(seat, "Player " + (preplayer + 1), preplayer);
-                    endGame();
-                } else {
-                    updateScene();
-                }
-            });
-            pause.play();
-        }
-    }
 
     private void endGame() {
         lastPlayCardShow();
