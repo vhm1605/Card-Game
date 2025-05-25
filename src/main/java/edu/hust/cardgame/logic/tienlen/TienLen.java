@@ -2,12 +2,7 @@ package main.java.edu.hust.cardgame.logic.tienlen;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import main.java.edu.hust.cardgame.ai.AIPlayer;
-import main.java.edu.hust.cardgame.ai.AIStrategy;
-import main.java.edu.hust.cardgame.ai.BacktrackingStrategy;
-import main.java.edu.hust.cardgame.ai.RandomValidMoveStrategy;
-import main.java.edu.hust.cardgame.ai.GreedyStrategy;
+import main.java.edu.hust.cardgame.ai.*;
 import main.java.edu.hust.cardgame.core.CardGame;
 import main.java.edu.hust.cardgame.core.DeckFactory;
 import main.java.edu.hust.cardgame.core.SheddingGame;
@@ -26,6 +21,8 @@ public abstract class TienLen extends CardGame<StandardCard> implements Shedding
     CardSorter<StandardCard> sorter = new CardSorter<>(new TienLenCardComparisonStrategy());
     TienLenCardComparisonStrategy comparer = new TienLenCardComparisonStrategy();
 
+    protected CardCollection<StandardCard> playedCards = new CardCollection<>();
+
     public TienLen() {
     }
 
@@ -39,7 +36,7 @@ public abstract class TienLen extends CardGame<StandardCard> implements Shedding
     public void deal() {
         players.clear();
 
-        AIStrategy<StandardCard, SheddingGame<StandardCard>> aiStrategy = createAIStrategy(1);
+        AIStrategy<StandardCard, SheddingGame<StandardCard>> aiStrategy = createAIStrategy(4);
 
         int numberOfHumanPlayers = numberOfPlayers - numberOfAIPlayers;
         for (int i = 0; i < numberOfHumanPlayers; i++) {
@@ -63,6 +60,7 @@ public abstract class TienLen extends CardGame<StandardCard> implements Shedding
             case 1 -> new RandomValidMoveStrategy<>(1000);
             case 2 -> new BacktrackingStrategy<>();
             case 3 -> new GreedyStrategy<>();
+            case 4 -> new MonteCarloStrategy<>(20, 500);
             default -> new RandomValidMoveStrategy<>(1000);
         };
     }
@@ -110,6 +108,7 @@ public abstract class TienLen extends CardGame<StandardCard> implements Shedding
     private void processValidPlay() {
         lastPlayedCards = selectedCards.clone();
         getCurrentPlayer().useCards(lastPlayedCards);
+        playedCards.addAll(lastPlayedCards); // Add played cards to playedCards
         if (getCurrentPlayer().getAllCards().isEmpty()) {
             playerRanking.add(currentPlayerIndex + 1);
             getCurrentPlayer().setState(PlayerState.OUT_OF_CARDS);
@@ -198,15 +197,40 @@ public abstract class TienLen extends CardGame<StandardCard> implements Shedding
     public void resetGame() {
         selectedCards.empty();
         lastPlayedCards.empty();
+        playedCards.empty(); // Ensure playedCards is cleared when resetting the game
         for (int i = 0; i < numberOfPlayers; i++) {
             players.get(i).getAllCards().clear();
             players.get(i).setState(PlayerState.IN_ROUND);
         }
         startNewGame();
     }
-    int i = 0;
+
+    @Override
+    public TienLen clone() {
+        try {
+            TienLen clone = (TienLen) super.clone(); // Shallow copy of basic fields
+            // Deep copy complex fields
+            clone.lastPlayedCards = this.lastPlayedCards.clone();
+            clone.selectedCards = this.selectedCards.clone();
+            clone.playedCards = this.playedCards.clone();
+            clone.playerRanking = new ArrayList<>(this.playerRanking);
+            clone.startingCard = this.startingCard; // Assuming StandardCard is immutable
+            clone.players = new ArrayList<>();
+            for (Player<StandardCard> p : this.players) {
+                clone.players.add(p.clone()); // Requires Player to have a clone method
+            }
+            clone.sorter = new CardSorter<>(new TienLenCardComparisonStrategy());
+            clone.comparer = new TienLenCardComparisonStrategy();
+            clone.playValidator = this.playValidator; // Adjust if playValidator needs cloning
+            return clone;
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException("Cloning failed", e);
+        }
+    }
+
     public String playerRankingToString() {
         StringBuilder builder = new StringBuilder();
+        int i = 0;
         for (Integer rank : playerRanking) {
             i++;
             builder.append("Rank " + i + ": Player ").append(rank).append("\n");
@@ -231,5 +255,21 @@ public abstract class TienLen extends CardGame<StandardCard> implements Shedding
     @Override
     public CardCollection<StandardCard> getLastPlayedCards() {
         return lastPlayedCards;
+    }
+
+    public CardCollection<StandardCard> getPlayedCards() {
+        return playedCards;
+    }
+
+    public CardCollection<StandardCard> copyLastPlayedCards() {
+        return lastPlayedCards.clone();
+    }
+
+    public int getCurrentPlayerIndex() {
+        return currentPlayerIndex;
+    }
+
+    public void setCurrentPlayerIndex(int index) {
+        this.currentPlayerIndex = index;
     }
 }

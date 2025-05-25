@@ -162,7 +162,8 @@ public class TienLenGameScene<T extends TienLen> extends GameScene<StandardCard,
                 }
                 showPlayerCards(i, seat);
             } else {
-                showHiddenCards(i, seat);
+                //showHiddenCards(i, seat);
+                showPlayerCards(i, seat);
             }
 
         }
@@ -172,7 +173,8 @@ public class TienLenGameScene<T extends TienLen> extends GameScene<StandardCard,
         Player<StandardCard> player = game.getPlayers().get(playerIndex);
         int handSize = player.getHandSize();
 
-        if (player instanceof AIPlayer) {
+        if (false) {
+        //if (player instanceof AIPlayer) {
             for (int j = 0; j < handSize; j++) {
                 pane.getChildren().add(CardImage.create(j, handSize, isBasic));
             }

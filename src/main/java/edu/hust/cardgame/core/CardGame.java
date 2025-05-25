@@ -81,6 +81,10 @@ public abstract class CardGame<C extends CardType> implements GeneralGame<C> {
 //        return ai.getHandSize();
 //    }
 
+//    public CardCollection<C> getDeck() {
+//        return deck.clone(); // Return a clone to prevent external modification
+//    }
+
     public abstract void deal();
 
     public abstract void startNewGame();

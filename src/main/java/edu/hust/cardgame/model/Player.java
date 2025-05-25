@@ -3,12 +3,12 @@ package main.java.edu.hust.cardgame.model;
 import java.util.List;
 import java.util.Objects;
 
-public class Player <C extends CardType>{
+public class Player <C extends CardType> implements Cloneable {
 	private PlayerState state;
 	private String name;
 	private int PlayerIndex;
 	private int finishOrder;
-	private final CardCollection<C> hand = new CardCollection<>();
+	private CardCollection<C> hand = new CardCollection<>();
 
 	public Player() {}
 
@@ -17,6 +17,18 @@ public class Player <C extends CardType>{
 		this.name = name;
 		this.PlayerIndex = PlayerIndex;
 		this.finishOrder = 0;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public Player<C> clone() {
+		try {
+			Player<C> clone = (Player<C>) super.clone();
+			clone.hand = this.hand.clone();
+			return clone;
+		} catch (CloneNotSupportedException e) {
+			throw new RuntimeException("Cloning failed", e);
+		}
 	}
 
 	public Boolean isActive() {
