@@ -143,23 +143,19 @@ public class MonteCarloStrategy<C extends StandardCard, G extends SheddingGame<C
         }
     }
 
-    private CardCollection<C> mctsSearch(G rootState, Player<C> ai, int iterations) {
-        List<Player<C>> players = getPlayersSafe(rootState);
-        int aiIndex = players.indexOf(ai);
-        if (aiIndex == -1) {
-            // If AI player not found, use the first player
-            aiIndex = 0;
-        }
-        Player<C> rootAI = players.get(aiIndex);
-        MCTSNode root = new MCTSNode(cloneGame(rootState), rootAI, null, null, rootAI);
+    public CardCollection<C> mctsSearch(G game, Player<C> ai, int iterations) {
+        MCTSNode root = new MCTSNode(game, ai, null, null, ai);
+        Random rng = new Random();
         for (int i = 0; i < iterations; i++) {
-            // Selection
             MCTSNode node = root;
-            while (!node.untriedMoves.isEmpty() && !node.children.isEmpty()) {
-                node = selectChild(node);
+            while (!node.isTerminal && node.untriedMoves.isEmpty() && !node.children.isEmpty()) {
+                MCTSNode selected = selectChild(node);
+                if (selected == null) {
+                    break;
+                }
+                node = selected;
             }
-            // Expansion
-            if (!node.untriedMoves.isEmpty() && !node.isTerminal) {
+            if (!node.isTerminal && !node.untriedMoves.isEmpty()) {
                 CardCollection<C> move = node.untriedMoves.remove(rng.nextInt(node.untriedMoves.size()));
                 G nextState = cloneGame(node.state);
                 List<Player<C>> nextStatePlayers = getPlayersSafe(nextState);
@@ -174,25 +170,22 @@ public class MonteCarloStrategy<C extends StandardCard, G extends SheddingGame<C
                 node.children.add(child);
                 node = child;
             }
-            // Simulation (rollout)
             double result = rolloutMCTS(node.state, ai, node.currentPlayer);
-            // Backpropagation
             while (node != null) {
                 node.visits++;
                 node.wins += result;
                 node = node.parent;
             }
         }
-        // Pick the child of root with the highest visit count
         MCTSNode bestChild = null;
-        int bestVisits = -1;
+        int mostVisits = -1;
         for (MCTSNode child : root.children) {
-            if (child.visits > bestVisits) {
-                bestVisits = child.visits;
+            if (child.visits > mostVisits) {
+                mostVisits = child.visits;
                 bestChild = child;
             }
         }
-        return (bestChild != null && bestChild.move != null) ? bestChild.move.clone() : generateLegalMoves(rootState, ai).get(0).clone();
+        return bestChild != null ? bestChild.move : new CardCollection<>();
     }
 
     private MCTSNode selectChild(MCTSNode node) {
@@ -215,7 +208,7 @@ public class MonteCarloStrategy<C extends StandardCard, G extends SheddingGame<C
         for (Player<C> p : players) {
             if (p.getHandSize() == 0) return true;
         }
-        return false;
+        return ((TienLen) game).isGameOver();
     }
 
     private Player<C> getNextPlayer(G game, Player<C> current) {
