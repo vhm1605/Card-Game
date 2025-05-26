@@ -3,6 +3,7 @@ package main.java.edu.hust.cardgame.ai;
 import java.util.*;
 import main.java.edu.hust.cardgame.core.SheddingGame;
 import main.java.edu.hust.cardgame.logic.tienlen.TienLen;
+import main.java.edu.hust.cardgame.logic.tienlen.TienLenMienNam;
 import main.java.edu.hust.cardgame.model.CardCollection;
 import main.java.edu.hust.cardgame.model.Player;
 import main.java.edu.hust.cardgame.model.StandardCard;
@@ -190,7 +191,7 @@ public class MonteCarloStrategy<C extends StandardCard, G extends SheddingGame<C
         CardCollection<C> hand = game.getHandOf(player).clone();
         int lastSize = game.getLastPlayedCards().getSize();
         int minSize = lastSize > 0 ? lastSize : 1;
-        if (initial) {
+        if (initial && game instanceof TienLenMienNam) {
             ArrayList<Integer> path = new ArrayList<>();
             path.add(0);
             for (int sz = minSize; sz <= hand.getSize(); sz++) {
