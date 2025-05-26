@@ -27,7 +27,6 @@ public class AIPlayer<C extends CardType, G extends GeneralGame<C>> extends Play
         toPlay.getAllCards().forEach(game.getSelectedCards()::addCard);
 
         if (game.isValidPlay()) {
-            ClickSound.play();
             game.playGame();
         } else {
             game.passTurn();

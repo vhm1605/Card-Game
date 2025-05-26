@@ -25,16 +25,6 @@ import java.util.List;
 
 public class TienLenGameScene<T extends TienLen> extends GameScene<StandardCard, T> {
     private HBox buttonBox;
-    private String buttonStyle = """
-			    -fx-background-color: linear-gradient(to right, #FF5722, #E64A19);
-			    -fx-text-fill: white;
-			    -fx-font-size: 16px;
-			    -fx-font-weight: bold;
-			    -fx-background-radius: 20;
-			    -fx-border-radius: 20;
-			    -fx-border-color: white;
-			    -fx-border-width: 2;
-			""";
 
     public TienLenGameScene(T game) {
         super(game);
@@ -122,7 +112,6 @@ public class TienLenGameScene<T extends TienLen> extends GameScene<StandardCard,
             PauseTransition pause = new PauseTransition();
             pause.setOnFinished(e -> {
                 AIPlayer<StandardCard, T> tempBot = (AIPlayer<StandardCard, T>) game.getCurrentPlayer();
-                ClickSound.play();
                 tempBot.makeMove(game);
                 if (game.isGameOver()) {
 
@@ -162,8 +151,7 @@ public class TienLenGameScene<T extends TienLen> extends GameScene<StandardCard,
                 }
                 showPlayerCards(i, seat);
             } else {
-                //showHiddenCards(i, seat);
-                showPlayerCards(i, seat);
+                showHiddenCards(i, seat);
             }
 
         }
@@ -173,8 +161,7 @@ public class TienLenGameScene<T extends TienLen> extends GameScene<StandardCard,
         Player<StandardCard> player = game.getPlayers().get(playerIndex);
         int handSize = player.getHandSize();
 
-        if (false) {
-        //if (player instanceof AIPlayer) {
+        if (player instanceof AIPlayer) {
             for (int j = 0; j < handSize; j++) {
                 pane.getChildren().add(CardImage.create(j, handSize, isBasic));
             }

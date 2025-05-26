@@ -15,8 +15,10 @@ import java.util.List;
 public class SelectGame {
 
     // Danh sách các game hỗ trợ
-    public static final List<GameOption> gameOptions = List.of(new GameOption("Tiến lên miền Nam", 1, 4, 13),
-            new GameOption("Tiến lên miền Bắc", 2, 4, 13), new GameOption("Ba Cây", 3, 8, 3)
+    public static final List<GameOption> gameOptions = List.of(
+            new GameOption("Tiến lên miền Nam", 1, 4, 13),
+            new GameOption("Tiến lên miền Bắc", 2, 4, 13),
+            new GameOption("Ba Cây", 3, 8, 3)
             // 👉 Thêm game mới tại đây nếu cần
             // new GameOption("Phỏm", 3, 4)
     );

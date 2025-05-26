@@ -31,16 +31,7 @@ import java.util.Map;
  *   2) is a ScoringGame<C> (so we can getScoreFor/getRanking)
  */
 public class BaCayGameScene<T extends BaCay> extends GameScene<StandardCard, T> {
-    private final String buttonStyle = """
-			    -fx-background-color: linear-gradient(to right, #FF5722, #E64A19);
-			    -fx-text-fill: white;
-			    -fx-font-size: 16px;
-			    -fx-font-weight: bold;
-			    -fx-background-radius: 20;
-			    -fx-border-radius: 20;
-			    -fx-border-color: white;
-			    -fx-border-width: 2;
-			""";
+
 
     private final Map<Integer, Integer> scores = new HashMap<>();
     private int turn = 0;

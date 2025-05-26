@@ -52,7 +52,7 @@ public class CardImage {
                     CardImage.class.getResource("/main/resources/card/" + card.toString() + ".png").toExternalForm()));
             cardImg.setFitWidth(80);
             cardImg.setFitHeight(100);
-            cardImg.setTranslateX(j * 20 - 10 * size);
+            cardImg.setTranslateX(j * 15 - 7 * size);
             return cardImg;
         } catch (Exception e) {
             e.printStackTrace();
@@ -87,7 +87,7 @@ public class CardImage {
 
             // Chuyển hình ảnh thành ImageView
             ImageView cardImg = new ImageView(writableImage);
-            cardImg.setTranslateX(j * 20 - 10 * size);
+            cardImg.setTranslateX(j * 15 - 7 * size);
             return cardImg;
         } catch (Exception e) {
             e.printStackTrace();

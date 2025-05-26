@@ -33,6 +33,8 @@ public abstract class GameScene<C extends CardType, G extends CardGame<C>> {
 
     protected G game;
 
+    protected String buttonStyle;
+
     // Dynamic map of up-to-8 player seats
     protected final Map<Integer, StackPane> playerPanes = new HashMap<>();
 
@@ -52,7 +54,29 @@ public abstract class GameScene<C extends CardType, G extends CardGame<C>> {
     public Parent createGamePlay(Stage primaryStage, boolean isBasic) {
         this.primaryStage = primaryStage;
         this.isBasic = isBasic;
-
+        if (!isBasic) {
+            buttonStyle = """
+        -fx-background-color: linear-gradient(to right, #FF5722, #E64A19);
+        -fx-text-fill: white;
+        -fx-font-size: 16px;
+        -fx-font-weight: bold;
+        -fx-background-radius: 20;
+        -fx-border-radius: 20;
+        -fx-border-color: white;
+        -fx-border-width: 2;
+    """;
+        } else {
+            buttonStyle = """
+        -fx-background-color: linear-gradient(to right, #B0B0B0, #7A7A7A);  
+        -fx-text-fill: white;
+        -fx-font-size: 16px;
+        -fx-font-weight: bold;
+        -fx-background-radius: 20;
+        -fx-border-radius: 20;
+        -fx-border-color: white;
+        -fx-border-width: 2;
+    """;
+        }
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/main/java/edu/hust/cardgame/ui/fxml/GamePlayScene.fxml"));
             Parent root = loader.load();
@@ -70,6 +94,7 @@ public abstract class GameScene<C extends CardType, G extends CardGame<C>> {
             // set the background
             ctrl.getBorderPane().setBackground(isBasic ? new Background(new BackgroundFill(Color.DARKGREEN, null, null))
                     : BackgroundImage.set("/main/resources/card/backgroundgameplay.png"));
+
 
             // 1) create empty seats
             int count = Math.min(game.getPlayers().size(), 8);
@@ -141,9 +166,7 @@ public abstract class GameScene<C extends CardType, G extends CardGame<C>> {
     protected Button createOutButton() {
         Button btn = new Button("Out");
         btn.setPrefSize(150, 40);
-        btn.setStyle("-fx-background-color: linear-gradient(to right, #FF5722, #E64A19);" + "-fx-text-fill: white;"
-                + "-fx-font-size: 16px;" + "-fx-font-weight: bold;" + "-fx-background-radius: 20;"
-                + "-fx-border-radius: 20;" + "-fx-border-color: white;" + "-fx-border-width: 2;");
+        btn.setStyle(buttonStyle);
         btn.setOnAction(e -> {
             ClickSound.play();
             pressBack = true;
