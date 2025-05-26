@@ -1,7 +1,6 @@
 package main.java.edu.hust.cardgame.ui.view;
 
-import main.java.edu.hust.cardgame.logic.tienlen.TienLen; // Your specific TienLen game logic class
-import main.java.edu.hust.cardgame.assets.imageaction.CardImage;
+import main.java.edu.hust.cardgame.controller.TienLenGameController;
 import javafx.animation.PauseTransition;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -9,25 +8,20 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane; // Though inherited, useful for local vars or casting
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 
-import main.java.edu.hust.cardgame.ai.AIPlayer;
-import main.java.edu.hust.cardgame.model.StandardCard;
-import main.java.edu.hust.cardgame.model.CardCollection;
-import main.java.edu.hust.cardgame.model.Player;
-import main.java.edu.hust.cardgame.model.PlayerState;
-import main.java.edu.hust.cardgame.assets.soundaction.ClickSound; // Assuming this is correctly imported in AbstractGamePlayScene as well
-
 import java.util.List;
 
-public class TienLenGameScene<T extends TienLen> extends GameScene<StandardCard, T> {
+public class TienLenGameScene extends GameScene {
     private HBox buttonBox;
+    private final TienLenGameController controller;
 
-    public TienLenGameScene(T game) {
-        super(game);
+    public TienLenGameScene(TienLenGameController controller) {
+        super();
+        this.controller = controller;
     }
 
     private void createActionButtons(boolean waitToPressShow) {
@@ -36,89 +30,79 @@ public class TienLenGameScene<T extends TienLen> extends GameScene<StandardCard,
 
         Button hitButton = new Button("Hit");
         Button skipButton = new Button("Skip");
-        Button backButton = createOutButton(); // Use superclass method
+        Button backButton = createOutButton();
 
-        // Set button sizes for hit and skip (backButton size set in superclass)
         hitButton.setPrefSize(150, 40);
         skipButton.setPrefSize(150, 40);
 
-        // Unified button styling for hit and skip (backButton styled in superclass)
-
         hitButton.setStyle(buttonStyle);
         skipButton.setStyle(buttonStyle);
-        // Button actions
+
         hitButton.setOnAction(e -> {
-            ClickSound.play();
-            if (game.isValidPlay()) {
-                game.playGame();
-                if (game.isGameOver()) {
+            controller.playClickSound();
+            if (controller.isValidPlay()) {
+                controller.play();
+                if (controller.isGameOver()) {
                     endGame();
                 } else {
-                    game.getSelectedCards().empty();
+                    controller.clearSelectedCards();
                     updateScene();
                 }
             }
         });
 
         skipButton.setOnAction(e -> {
-            ClickSound.play();
-            game.passTurn();
+            controller.playClickSound();
+            controller.passTurn();
             updateScene();
         });
 
-        // backButton action already set in createBackButton()
-
-        // Create HBox and add all buttons
-        buttonBox = new HBox(20); // Spacing between buttons
-
+        buttonBox = new HBox(20);
         buttonBox.setUserData("buttonBar");
         buttonBox.setMouseTransparent(false);
-        if (waitToPressShow) {
 
+        if (waitToPressShow) {
             Button showCard = new Button("Show your Cards");
             showCard.setOnAction(e -> {
-
-                ClickSound.play();
-                centerPane.getChildren().clear(); // Clear centerPane for update
-                playerCardShow(false);
-                lastPlayCardShow();
-                createActionButtons(false); // Re-add buttons
+                controller.playClickSound();
+                centerPane.getChildren().clear();
+                showPlayerCards(false);
+                showLastPlayedCards();
+                createActionButtons(false);
             });
             showCard.setPrefSize(200, 40);
             showCard.setStyle(buttonStyle);
             buttonBox.getChildren().addAll(showCard, backButton);
-        } else
+        } else {
             buttonBox.getChildren().addAll(skipButton, hitButton, backButton);
-        buttonBox.setPadding(new Insets(10, 0, 10, 0));
+        }
 
+        buttonBox.setPadding(new Insets(10, 0, 10, 0));
         buttonBox.setUserData("overlay");
         uiLayer.getChildren().add(buttonBox);
-        StackPane.setAlignment(buttonBox, Pos.BOTTOM_CENTER); // Position at bottom
-        StackPane.setMargin(buttonBox, new Insets(50, 0, 0, 0)); // Add 20px bottom margin
+        StackPane.setAlignment(buttonBox, Pos.BOTTOM_CENTER);
+        StackPane.setMargin(buttonBox, new Insets(50, 0, 0, 0));
     }
 
     @Override
     protected void updateScene() {
-        if (pressBack == true)
-            return;
+        if (pressBack) return;
         uiLayer.getChildren().removeIf(n -> "overlay".equals(n.getUserData()));
-        centerPane.getChildren().clear(); // Clear centerPane for update
+        centerPane.getChildren().clear();
 
-        if (game.getCurrentPlayer() instanceof AIPlayer<?, ?>) {
-            playerCardShow(false);
-            lastPlayCardShow();
-            createActionButtons(false); // Re-add buttons
-            int preplayer = game.getCurrentPlayerIndex();
+        if (controller.isCurrentPlayerAI()) {
+            showPlayerCards(false);
+            showLastPlayedCards();
+            createActionButtons(false);
+
+            int currentIndex = controller.getCurrentPlayerIndex();
             PauseTransition pause = new PauseTransition();
             pause.setOnFinished(e -> {
-                AIPlayer<StandardCard, T> tempBot = (AIPlayer<StandardCard, T>) game.getCurrentPlayer();
-                tempBot.makeMove(game);
-                if (game.isGameOver()) {
-
-                    StackPane seat = playerPanes.get(preplayer);
-
+                controller.makeAIMove();
+                if (controller.isGameOver()) {
+                    StackPane seat = playerPanes.get(currentIndex);
                     seat.getChildren().clear();
-                    addPlayerNameLabel(seat, "Player " + (preplayer + 1), preplayer);
+                    addPlayerNameLabel(seat, controller.getPlayerName(currentIndex), currentIndex);
                     endGame();
                 } else {
                     updateScene();
@@ -126,88 +110,49 @@ public class TienLenGameScene<T extends TienLen> extends GameScene<StandardCard,
             });
             pause.play();
         } else {
-            playerCardShow(true);
-            lastPlayCardShow();
+            showPlayerCards(true);
+            showLastPlayedCards();
             createActionButtons(true);
         }
     }
 
-    private void playerCardShow(boolean waitToPressShow) {
-        List<Player<StandardCard>> players = game.getPlayers();
-
-        for (int i = 0; i < players.size(); i++) {
-
+    private void showPlayerCards(boolean waitToPressShow) {
+        int totalPlayers = controller.getPlayerCount();
+        for (int i = 0; i < totalPlayers; i++) {
             StackPane seat = playerPanes.get(i);
-
             seat.getChildren().clear();
-            addPlayerNameLabel(seat, "Player " + (i + 1), i);
-            if (seat == null) {
-                continue;
-            }
+            addPlayerNameLabel(seat, controller.getPlayerName(i), i);
 
-            if (i == game.getCurrentPlayerIndex() && !waitToPressShow) {
-                while (game.getCurrentPlayer().getState() != PlayerState.IN_ROUND) {
-                    game.moveToNextPlayer();
-                }
-                showPlayerCards(i, seat);
-            } else {
-                showHiddenCards(i, seat);
-            }
-
-        }
-    }
-
-    private void showPlayerCards(int playerIndex, StackPane pane) {
-        Player<StandardCard> player = game.getPlayers().get(playerIndex);
-        int handSize = player.getHandSize();
-
-        if (player instanceof AIPlayer) {
-            for (int j = 0; j < handSize; j++) {
-                pane.getChildren().add(CardImage.create(j, handSize, isBasic));
-            }
-        } else {
-            for (int j = 0; j < handSize; j++) {
-                StandardCard card = player.getAllCards().get(j);
-                ImageView cardImg = CardImage.create(j, handSize, card, isBasic);
-
-                cardImg.setOnMouseClicked(e -> {
-                    ClickSound.play();
-                    if (game.getSelectedCards().getAllCards().contains(card)) {
-                        game.deselectCard(card);
-                        cardImg.setTranslateY(0);
+            if (i == controller.getCurrentPlayerIndex() && !waitToPressShow && !controller.isCurrentPlayerAI()) {
+                controller.ensureInRound();
+                List<ImageView> cardViews = controller.getVisibleCards(i, isBasic, card -> {
+                    controller.playClickSound();
+                    if (controller.isCardSelected(card)) {
+                        controller.deselectCard(card);
+                        return 0;
                     } else {
-                        game.selectCard(card);
-                        cardImg.setTranslateY(-10);
+                        controller.selectCard(card);
+                        return -10;
                     }
                 });
-
-                pane.getChildren().add(cardImg);
+                seat.getChildren().addAll(cardViews);
+            } else {
+                List<ImageView> hidden = controller.getHiddenCardImages(i, isBasic);
+                seat.getChildren().addAll(hidden);
             }
         }
     }
 
-    private void showHiddenCards(int playerIndex, StackPane pane) {
-        Player<StandardCard> player = game.getPlayers().get(playerIndex);
-        int handSize = player.getHandSize();
-
-        for (int j = 0; j < handSize; j++) {
-            pane.getChildren().add(CardImage.create(j, handSize, isBasic));
-        }
-    }
-
-    private void lastPlayCardShow() {
-        CardCollection<StandardCard> lastPlay = game.getLastPlayedCards();
+    private void showLastPlayedCards() {
         centerPane.getChildren().clear();
-        for (int i = 0; i < lastPlay.getSize(); i++) {
-            centerPane.getChildren().add(CardImage.create(i, lastPlay.getSize(), lastPlay.getCardAt(i), isBasic));
-        }
+        List<ImageView> cards = controller.getLastPlayedCardImages(isBasic);
+        centerPane.getChildren().addAll(cards);
     }
-
 
     private void endGame() {
-        lastPlayCardShow();
+        showLastPlayedCards();
+        String resultText = "Ranking:\n" + controller.getRankingText();
 
-        String resultText = "Ranking:\n" + game.playerRankingToString();
         Label winnerLabel = new Label(resultText);
         winnerLabel.setFont(Font.font("Arial", 20));
         winnerLabel.setTextFill(Color.WHITE);
@@ -219,25 +164,23 @@ public class TienLenGameScene<T extends TienLen> extends GameScene<StandardCard,
         backButton.setStyle(buttonStyle);
 
         newGame.setOnAction(e -> {
-            ClickSound.play();
+            controller.playClickSound();
             updateScene();
         });
+
         backButton.setOnAction(e -> handleBackAction());
 
-        HBox buttonBox = new HBox(20);
-        buttonBox.getChildren().addAll(newGame, backButton);
+        HBox buttonBox = new HBox(20, newGame, backButton);
         buttonBox.setPadding(new Insets(10, 0, 0, 0));
 
-        // wipe previous buttons / ranking, keep the seats
         uiLayer.getChildren().removeIf(n -> !playerPanes.containsValue(n));
 
-        VBox vbox = new VBox(10);
-        vbox.getChildren().addAll(winnerLabel, buttonBox);
+        VBox vbox = new VBox(10, winnerLabel, buttonBox);
         vbox.setPadding(new Insets(20));
         vbox.setUserData("overlay");
         vbox.setMouseTransparent(false);
         uiLayer.getChildren().add(vbox);
 
-        game.resetGame();
+        controller.resetGame();
     }
 }

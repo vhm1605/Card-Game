@@ -1,26 +1,17 @@
 package main.java.edu.hust.cardgame.ui.view;
 
-import main.java.edu.hust.cardgame.assets.imageaction.BackgroundImage;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
-import main.java.edu.hust.cardgame.core.DeckFactory;
-import main.java.edu.hust.cardgame.core.EnumPairDeckFactory;
-import main.java.edu.hust.cardgame.logic.bacay.BaCay;
-import main.java.edu.hust.cardgame.logic.tienlen.TienLen;
-import main.java.edu.hust.cardgame.logic.tienlen.TienLenMienBac;
-import main.java.edu.hust.cardgame.logic.tienlen.TienLenMienNam;
-import main.java.edu.hust.cardgame.model.GameOption;
-import main.java.edu.hust.cardgame.strategy.BaCayScoreStrategy;
-import main.java.edu.hust.cardgame.model.Face;
-import main.java.edu.hust.cardgame.model.StandardCard;
-import main.java.edu.hust.cardgame.model.Suit;
+import main.java.edu.hust.cardgame.assets.imageaction.BackgroundImage;
 import main.java.edu.hust.cardgame.assets.soundaction.ClickSound;
-
+import main.java.edu.hust.cardgame.controller.GameController;
+import main.java.edu.hust.cardgame.controller.GameControllerFactory;
+import main.java.edu.hust.cardgame.model.GameOption;
 
 public class GameConfigScene {
 
@@ -78,28 +69,10 @@ public class GameConfigScene {
             warningLabel.setText("");
             boolean isBasic = basicMode.isSelected();
 
-            if (gameOption.id == 1) {
-                DeckFactory<StandardCard> stdFactory = new EnumPairDeckFactory<>(Face.class, Suit.class,
-                        StandardCard::new);
-                TienLen game = new TienLenMienNam(totalPlayers, botCount, stdFactory);
-                TienLenGameScene<TienLenMienNam> scene = new TienLenGameScene<>((TienLenMienNam) game);
-                Parent gamePlayParent = scene.createGamePlay(primaryStage, isBasic);
-                primaryStage.getScene().setRoot(gamePlayParent);
-            } else if (gameOption.id == 2) {
-                DeckFactory<StandardCard> stdFactory = new EnumPairDeckFactory<>(Face.class, Suit.class,
-                        StandardCard::new);
-                TienLen game = new TienLenMienBac(totalPlayers, botCount, stdFactory);
-                TienLenGameScene<TienLenMienBac> scene = new TienLenGameScene<>((TienLenMienBac) game);
-                Parent gamePlayParent = scene.createGamePlay(primaryStage, isBasic);
-                primaryStage.getScene().setRoot(gamePlayParent);
-            } else if (gameOption.id == 3) {
-                DeckFactory<StandardCard> stdFactory = new EnumPairDeckFactory<>(Face.class, Suit.class,
-                        StandardCard::new);
-                BaCay game = new BaCay(totalPlayers, botCount, new BaCayScoreStrategy(), stdFactory);
-                BaCayGameScene<BaCay> scene = new BaCayGameScene<>(game);
-                Parent playRoot = scene.createGamePlay(primaryStage, isBasic);
-                primaryStage.getScene().setRoot(playRoot);
-            }
+            GameController controller = GameControllerFactory.create(gameOption, playerCount, botCount);
+            GameScene scene = GameSceneFactory.create(gameOption, controller);
+            Parent gamePlayParent = scene.createGamePlay(primaryStage, isBasic, controller);
+            primaryStage.getScene().setRoot(gamePlayParent);
         });
 
         Button backButton = createStyledButton("Quay lại", "#f44336", "#e57373");
@@ -109,8 +82,8 @@ public class GameConfigScene {
             primaryStage.getScene().setRoot(selectGameRoot);
         });
 
-        inputPane.getChildren().addAll(label, playerTextField, botTextField, maxPlayersLabel, graphicsBox, next,
-                backButton, warningLabel);
+        inputPane.getChildren().addAll(label, playerTextField, botTextField, maxPlayersLabel,
+                graphicsBox, next, backButton, warningLabel);
 
         StackPane inputRoot = new StackPane();
         inputRoot.setPrefSize(1280, 720);
@@ -128,13 +101,13 @@ public class GameConfigScene {
         textField.setPromptText(prompt);
         textField.setMaxWidth(200);
         textField.setStyle("""
-				    -fx-font-size: 14px;
-				    -fx-background-radius: 10;
-				    -fx-border-radius: 10;
-				    -fx-border-color: white;
-				    -fx-border-width: 2;
-				    -fx-padding: 5 10 5 10;
-				""");
+            -fx-font-size: 14px;
+            -fx-background-radius: 10;
+            -fx-border-radius: 10;
+            -fx-border-color: white;
+            -fx-border-width: 2;
+            -fx-padding: 5 10 5 10;
+        """);
 
         textField.setTextFormatter(new TextFormatter<>(change -> {
             String newText = change.getControlNewText();
@@ -148,15 +121,15 @@ public class GameConfigScene {
         Button button = new Button(text);
         button.setPrefSize(150, 40);
         button.setStyle(String.format("""
-				    -fx-background-color: linear-gradient(to right, %s, %s);
-				    -fx-text-fill: white;
-				    -fx-font-size: 16px;
-				    -fx-font-weight: bold;
-				    -fx-background-radius: 20;
-				    -fx-border-radius: 20;
-				    -fx-border-color: white;
-				    -fx-border-width: 2;
-				""", colorStart, colorEnd));
+            -fx-background-color: linear-gradient(to right, %s, %s);
+            -fx-text-fill: white;
+            -fx-font-size: 16px;
+            -fx-font-weight: bold;
+            -fx-background-radius: 20;
+            -fx-border-radius: 20;
+            -fx-border-color: white;
+            -fx-border-width: 2;
+        """, colorStart, colorEnd));
         return button;
     }
 
