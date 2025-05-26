@@ -26,6 +26,14 @@ public abstract class TienLen extends CardGame<StandardCard> implements Shedding
     public TienLen() {
     }
 
+    public int getFlag() {
+        return flag;
+    }
+
+    public StandardCard getStartingCard() {
+        return startingCard;
+    }
+
     public TienLen(int numberOfPlayers, int numberOfAIPlayers, DeckFactory<StandardCard> factory) {
         super(numberOfPlayers, numberOfAIPlayers, factory);
         flag = 1;
