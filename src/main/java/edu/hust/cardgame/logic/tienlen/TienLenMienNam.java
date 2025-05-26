@@ -62,6 +62,7 @@ public class TienLenMienNam extends TienLen implements Cloneable {
                     flag = 0;
                     return true;
                 }
+                return false;
             case CONSECUTIVE_PAIRS:
                 if ((lastIndexOfSelectedCards > lastIndexOfLastPlayCards) || (lastIndexOfSelectedCards == lastIndexOfLastPlayCards && comparer.compare(selectedCards.getCardAt(lastIndexOfSelectedCards), lastPlayedCards.getCardAt(lastIndexOfLastPlayCards)) > 0)) {
                     flag = 0;
@@ -73,8 +74,8 @@ public class TienLenMienNam extends TienLen implements Cloneable {
                     flag = 0;
                     return true;
                 }
+                return false;
         }
-        return false;
     }
 
     private boolean handleDifferentCombo(CardComboType selectedCardsType, CardComboType lastPlayCardsType, int lastIndexOfSelectedCards, int lastIndexOfLastPlayCards) {

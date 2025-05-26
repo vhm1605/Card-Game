@@ -60,7 +60,7 @@ public abstract class TienLen extends CardGame<StandardCard> implements Shedding
             case 1 -> new RandomValidMoveStrategy<>(1000);
             case 2 -> new BacktrackingStrategy<>();
             case 3 -> new GreedyStrategy<>();
-            case 4 -> new MonteCarloStrategy<>(30, 200);
+            case 4 -> new MonteCarloStrategy<>(10, 20);
             default -> new RandomValidMoveStrategy<>(1000);
         };
     }
