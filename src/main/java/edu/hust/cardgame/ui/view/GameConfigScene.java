@@ -5,13 +5,11 @@ import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import main.java.edu.hust.cardgame.assets.imageaction.BackgroundImage;
 import main.java.edu.hust.cardgame.assets.soundaction.ClickSound;
 import main.java.edu.hust.cardgame.controller.GameController;
 import main.java.edu.hust.cardgame.controller.GameControllerFactory;
-import main.java.edu.hust.cardgame.model.GameOption;
 
 public class GameConfigScene {
 

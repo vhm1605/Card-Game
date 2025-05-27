@@ -12,8 +12,8 @@ module CardGameOOP {
     opens main.java.edu.hust.cardgame.application to javafx.graphics, javafx.fxml;
 
     // Model
-    exports main.java.edu.hust.cardgame.model;
-    opens main.java.edu.hust.cardgame.model to javafx.fxml, javafx.graphics;
+//    exports main.java.edu.hust.cardgame.model;
+//    opens main.java.edu.hust.cardgame.model to javafx.fxml, javafx.graphics;
 
     // UI
     exports main.java.edu.hust.cardgame.ui.view;
@@ -47,5 +47,5 @@ module CardGameOOP {
 
     // Core (Deck, Game interfaces)
     exports main.java.edu.hust.cardgame.core;
-    opens main.java.edu.hust.cardgame.core to javafx.fxml;
+    opens main.java.edu.hust.cardgame.core to javafx.fxml, javafx.graphics;
 }

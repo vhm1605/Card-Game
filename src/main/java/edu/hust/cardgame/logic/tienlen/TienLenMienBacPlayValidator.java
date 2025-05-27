@@ -1,9 +1,9 @@
 package main.java.edu.hust.cardgame.logic.tienlen;
 
 import main.java.edu.hust.cardgame.logic.tienlen.util.TienLenUtils;
-import main.java.edu.hust.cardgame.model.CardCollection;
-import main.java.edu.hust.cardgame.model.CardComboType;
-import main.java.edu.hust.cardgame.model.StandardCard;
+import main.java.edu.hust.cardgame.core.CardCollection;
+import main.java.edu.hust.cardgame.core.CardComboType;
+import main.java.edu.hust.cardgame.core.StandardCard;
 import main.java.edu.hust.cardgame.strategy.CardOrderingStrategy;
 import main.java.edu.hust.cardgame.strategy.CardSorter;
 import main.java.edu.hust.cardgame.strategy.TienLenCardComparisonStrategy;

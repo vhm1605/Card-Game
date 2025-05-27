@@ -9,13 +9,9 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
-import javafx.util.Duration;
-import javafx.animation.PauseTransition;
 
-import main.java.edu.hust.cardgame.assets.imageaction.CardImage;
 import main.java.edu.hust.cardgame.assets.soundaction.ClickSound;
 import main.java.edu.hust.cardgame.controller.BaCayGameController;
-import main.java.edu.hust.cardgame.model.StandardCard;
 
 import java.util.*;
 

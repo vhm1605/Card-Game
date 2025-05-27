@@ -1,4 +1,4 @@
-package main.java.edu.hust.cardgame.model;
+package main.java.edu.hust.cardgame.core;
 
 public class PairCard<A extends Enum<A>, B extends Enum<B>> implements CardType {
     private final A a;

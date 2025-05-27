@@ -1,8 +1,8 @@
 package main.java.edu.hust.cardgame.strategy;
 
-import main.java.edu.hust.cardgame.model.Face;
-import main.java.edu.hust.cardgame.model.StandardCard;
-import main.java.edu.hust.cardgame.model.Suit;
+import main.java.edu.hust.cardgame.core.Face;
+import main.java.edu.hust.cardgame.core.StandardCard;
+import main.java.edu.hust.cardgame.core.Suit;
 
 public class DefaultStandardCardOrderingStrategy implements CardOrderingStrategy<StandardCard> {
     public int getFaceOrder(StandardCard card) {

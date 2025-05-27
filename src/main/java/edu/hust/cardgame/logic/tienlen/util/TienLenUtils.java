@@ -1,7 +1,7 @@
 package main.java.edu.hust.cardgame.logic.tienlen.util;
 
 import main.java.edu.hust.cardgame.strategy.CardOrderingStrategy;
-import main.java.edu.hust.cardgame.model.StandardCard;
+import main.java.edu.hust.cardgame.core.StandardCard;
 import main.java.edu.hust.cardgame.strategy.DefaultStandardCardOrderingStrategy;
 
 public class TienLenUtils {

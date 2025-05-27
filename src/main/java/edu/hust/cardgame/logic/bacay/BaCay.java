@@ -1,10 +1,6 @@
 package main.java.edu.hust.cardgame.logic.bacay;
 
-import main.java.edu.hust.cardgame.core.CardGame;
-import main.java.edu.hust.cardgame.core.DeckFactory;
-import main.java.edu.hust.cardgame.core.ScoringGame;
-import main.java.edu.hust.cardgame.model.Player;
-import main.java.edu.hust.cardgame.model.StandardCard;
+import main.java.edu.hust.cardgame.core.*;
 import main.java.edu.hust.cardgame.strategy.ScoreStrategy;
 
 import java.util.ArrayList;
@@ -16,6 +12,7 @@ public class BaCay extends CardGame<StandardCard> implements ScoringGame<Standar
     private final ScoreStrategy<StandardCard> scoreStrategy;
     private final List<Integer> playerScores = new ArrayList<>();
     private boolean gameOver = false;
+    private static final int MaxCardEachPlayer = 3;
 
     public BaCay(int numberOfPlayers, int numberOfAIPlayers, ScoreStrategy<StandardCard> scoreStrategy, DeckFactory<StandardCard> factory) {
         super(numberOfPlayers, numberOfAIPlayers, factory);
@@ -34,8 +31,13 @@ public class BaCay extends CardGame<StandardCard> implements ScoringGame<Standar
             players.add(new Player<>());
         }
         for (Player<StandardCard> p : players) {
-            for (int i = 0; i < 3; i++) {
-                p.receiveCard(deck.removeCardAt(0));
+            int drawn = 1;
+            while (drawn <= MaxCardEachPlayer) {
+                StandardCard card = deck.removeCardAt(0);
+                if (card.getFirst().ordinal() <= Face.TEN.ordinal()) {
+                    p.receiveCard(card);
+                    drawn++;
+                }
             }
         }
     }

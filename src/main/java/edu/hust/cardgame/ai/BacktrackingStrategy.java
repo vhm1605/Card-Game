@@ -1,36 +1,31 @@
 package main.java.edu.hust.cardgame.ai;
 
-import main.java.edu.hust.cardgame.model.CardComboType;
-import main.java.edu.hust.cardgame.logic.tienlen.TienLen;
-import main.java.edu.hust.cardgame.model.CardCollection;
-import main.java.edu.hust.cardgame.model.Face;
-import main.java.edu.hust.cardgame.model.Player;
-import main.java.edu.hust.cardgame.model.StandardCard;
 import main.java.edu.hust.cardgame.core.SheddingGame;
+import main.java.edu.hust.cardgame.core.CardCollection;
+import main.java.edu.hust.cardgame.core.Player;
+import main.java.edu.hust.cardgame.core.CardType;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
-public class BacktrackingStrategy<C extends StandardCard,
-        G extends SheddingGame<C>>
-        implements AIStrategy<C, G> {
-
+public class BacktrackingStrategy<C extends CardType, G extends SheddingGame<C>> implements AIStrategy<C, G> {
     @Override
     public CardCollection<C> decideMove(G game, Player<C> ai) {
         CardCollection<C> hand = game.getHandOf(ai).clone();
-        int lastSize = game.getLastPlayedCards().getSize();
-        int target = lastSize > 0 ? lastSize : 1;
+        int handSize = hand.getSize();
 
-        System.out.printf("[Backtrack] AI %s trying combos of size %d%n",
-                ai.getName(), target);
+        for (int size = 1; size <= handSize; size++) {
+            if (search(game, hand, size, 0, new ArrayList<>())) {
+                CardCollection<C> play = game.getSelectedCards().clone();
+                game.getSelectedCards().empty();
+                return play;
+            }
+        }
 
-        boolean found = search(game, hand, target, 0, new ArrayList<>());
-        return found
-                ? game.getSelectedCards().clone()
-                : new CardCollection<>();
+        return new CardCollection<>();
     }
 
-    @SuppressWarnings("unchecked")
     private boolean search(SheddingGame<C> game,
                            CardCollection<C> hand,
                            int size,
@@ -39,29 +34,10 @@ public class BacktrackingStrategy<C extends StandardCard,
         if (idxs.size() == size) {
             CardCollection<C> sel = game.getSelectedCards();
             sel.empty();
-            for (int i : idxs) {
-                sel.addCard(hand.getCardAt(i));
-            }
-            if (game.isValidPlay()) {
-                return true;
-            }
+            idxs.forEach(i -> sel.addCard(hand.getCardAt(i)));
 
-            // TienLen‐only bomb: beating a TWO with 4‐of‐a‐kind or 3‐pairs
-            if (game instanceof TienLen && size == 1) {
-                // unchecked cast from CardCollection<C> to CardCollection<StandardCard>
-                CardCollection<StandardCard> stdSel =
-                        (CardCollection<StandardCard>) (CardCollection<?>) sel;
-
-                StandardCard card0 = stdSel.getCardAt(0);
-                if (card0.getFirst() == Face.TWO) {
-                    CardComboType t = ((TienLen) game).determineComboType(stdSel);
-                    if (t == CardComboType.FOUR_OF_A_KIND ||
-                            t == CardComboType.CONSECUTIVE_PAIRS) {
-                        return true;
-                    }
-                }
-            }
-            return false;
+            boolean ok = game.isValidPlay();
+            return ok;
         }
 
         int remain = size - idxs.size();

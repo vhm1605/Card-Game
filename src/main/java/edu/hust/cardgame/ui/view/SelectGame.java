@@ -8,7 +8,6 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import main.java.edu.hust.cardgame.assets.soundaction.ClickSound;
-import main.java.edu.hust.cardgame.model.GameOption;
 
 import java.util.List;
 

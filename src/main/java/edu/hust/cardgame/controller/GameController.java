@@ -2,7 +2,7 @@ package main.java.edu.hust.cardgame.controller;
 
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Background;
-import main.java.edu.hust.cardgame.model.StandardCard;
+import main.java.edu.hust.cardgame.core.StandardCard;
 
 import java.util.List;
 import java.util.function.Function;

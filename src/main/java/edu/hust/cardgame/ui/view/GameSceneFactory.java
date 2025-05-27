@@ -2,8 +2,6 @@ package main.java.edu.hust.cardgame.ui.view;
 
 import main.java.edu.hust.cardgame.controller.*;
 
-import main.java.edu.hust.cardgame.model.GameOption;
-
 public class GameSceneFactory {
 
     public static GameScene create(GameOption gameOption, GameController controller) {

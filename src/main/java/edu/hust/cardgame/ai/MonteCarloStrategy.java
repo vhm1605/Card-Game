@@ -4,9 +4,9 @@ import java.util.*;
 import main.java.edu.hust.cardgame.core.SheddingGame;
 import main.java.edu.hust.cardgame.logic.tienlen.TienLen;
 import main.java.edu.hust.cardgame.logic.tienlen.TienLenMienNam;
-import main.java.edu.hust.cardgame.model.CardCollection;
-import main.java.edu.hust.cardgame.model.Player;
-import main.java.edu.hust.cardgame.model.StandardCard;
+import main.java.edu.hust.cardgame.core.CardCollection;
+import main.java.edu.hust.cardgame.core.Player;
+import main.java.edu.hust.cardgame.core.StandardCard;
 
 public class MonteCarloStrategy<C extends StandardCard, G extends SheddingGame<C>> implements AIStrategy<C, G> {
     private final int simulationsPerMove;

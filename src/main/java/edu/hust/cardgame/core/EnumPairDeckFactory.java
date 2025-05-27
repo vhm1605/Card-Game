@@ -1,7 +1,5 @@
 package main.java.edu.hust.cardgame.core;
 
-import main.java.edu.hust.cardgame.model.PairCard;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiFunction;

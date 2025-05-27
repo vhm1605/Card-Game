@@ -1,14 +1,12 @@
 package main.java.edu.hust.cardgame.ai;
 
-import main.java.edu.hust.cardgame.model.CardCollection;
-import main.java.edu.hust.cardgame.model.CardType;
-import main.java.edu.hust.cardgame.model.Player;
+import main.java.edu.hust.cardgame.core.CardCollection;
+import main.java.edu.hust.cardgame.core.CardType;
+import main.java.edu.hust.cardgame.core.Player;
 import main.java.edu.hust.cardgame.core.SheddingGame;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class GreedyStrategy<C extends CardType, G extends SheddingGame<C>> implements AIStrategy<C, G> {
 

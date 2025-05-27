@@ -1,6 +1,6 @@
 package main.java.edu.hust.cardgame.strategy;
 
-import main.java.edu.hust.cardgame.model.StandardCard;
+import main.java.edu.hust.cardgame.core.StandardCard;
 
 public class DefaultComparisonStrategy implements CardComparisonStrategy<StandardCard> {
     public final CardOrderingStrategy<StandardCard> order = new DefaultStandardCardOrderingStrategy();

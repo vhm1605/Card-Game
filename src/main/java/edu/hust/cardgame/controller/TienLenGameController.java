@@ -6,10 +6,10 @@ import main.java.edu.hust.cardgame.assets.imageaction.BackgroundImage;
 import main.java.edu.hust.cardgame.assets.imageaction.CardImage;
 import main.java.edu.hust.cardgame.assets.soundaction.ClickSound;
 import main.java.edu.hust.cardgame.logic.tienlen.TienLen;
-import main.java.edu.hust.cardgame.model.CardCollection;
-import main.java.edu.hust.cardgame.model.Player;
-import main.java.edu.hust.cardgame.model.PlayerState;
-import main.java.edu.hust.cardgame.model.StandardCard;
+import main.java.edu.hust.cardgame.core.CardCollection;
+import main.java.edu.hust.cardgame.core.Player;
+import main.java.edu.hust.cardgame.core.PlayerState;
+import main.java.edu.hust.cardgame.core.StandardCard;
 import main.java.edu.hust.cardgame.ai.AIPlayer;
 
 import java.util.ArrayList;

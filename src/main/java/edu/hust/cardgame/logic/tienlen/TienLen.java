@@ -3,10 +3,7 @@ package main.java.edu.hust.cardgame.logic.tienlen;
 import java.util.ArrayList;
 import java.util.List;
 import main.java.edu.hust.cardgame.ai.*;
-import main.java.edu.hust.cardgame.core.CardGame;
-import main.java.edu.hust.cardgame.core.DeckFactory;
-import main.java.edu.hust.cardgame.core.SheddingGame;
-import main.java.edu.hust.cardgame.model.*;
+import main.java.edu.hust.cardgame.core.*;
 import main.java.edu.hust.cardgame.strategy.CardSorter;
 import main.java.edu.hust.cardgame.strategy.TienLenCardComparisonStrategy;
 
@@ -68,7 +65,7 @@ public abstract class TienLen extends CardGame<StandardCard> implements Shedding
             case 1 -> new RandomValidMoveStrategy<>(1000);
             case 2 -> new BacktrackingStrategy<>();
             case 3 -> new GreedyStrategy<>();
-            case 4 -> new MonteCarloStrategy<>(10, 20);
+            case 4 -> new MonteCarloStrategy<>(10, 40);
             default -> new RandomValidMoveStrategy<>(1000);
         };
     }

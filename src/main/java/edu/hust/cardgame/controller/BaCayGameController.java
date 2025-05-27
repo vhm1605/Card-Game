@@ -6,8 +6,8 @@ import main.java.edu.hust.cardgame.assets.imageaction.BackgroundImage;
 import main.java.edu.hust.cardgame.assets.imageaction.CardImage;
 import main.java.edu.hust.cardgame.assets.soundaction.ClickSound;
 import main.java.edu.hust.cardgame.logic.bacay.BaCay;
-import main.java.edu.hust.cardgame.model.Player;
-import main.java.edu.hust.cardgame.model.StandardCard;
+import main.java.edu.hust.cardgame.core.Player;
+import main.java.edu.hust.cardgame.core.StandardCard;
 
 import java.util.ArrayList;
 import java.util.List;

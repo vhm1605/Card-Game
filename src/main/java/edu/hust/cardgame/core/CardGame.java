@@ -3,10 +3,6 @@ package main.java.edu.hust.cardgame.core;
 import java.util.ArrayList;
 import java.util.List;
 
-import main.java.edu.hust.cardgame.model.CardCollection;
-import main.java.edu.hust.cardgame.model.CardType;
-import main.java.edu.hust.cardgame.model.Player;
-
 public abstract class CardGame<C extends CardType> implements GeneralGame<C> {
     protected List<Player<C>> players = new ArrayList<>();
     protected CardCollection<C> deck = new CardCollection<>();

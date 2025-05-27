@@ -32,7 +32,7 @@
 //		this.suit = suit;
 //	}
 //}
-package main.java.edu.hust.cardgame.model;
+package main.java.edu.hust.cardgame.core;
 
 public class StandardCard extends PairCard<Face, Suit> {
 	public StandardCard(Face face, Suit suit) {

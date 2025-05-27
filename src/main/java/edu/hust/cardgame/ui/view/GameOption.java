@@ -1,4 +1,4 @@
-package main.java.edu.hust.cardgame.model;
+package main.java.edu.hust.cardgame.ui.view;
 
 public class GameOption {
     public final String name;
