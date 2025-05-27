@@ -22,7 +22,7 @@ import java.util.*;
 public class BaCayGameScene extends GameScene {
     private final BaCayGameController controller;
     private final Map<Integer, Integer> scores = new HashMap<>();
-    private boolean allCardsRevealed = false;
+    private int turn = 0;
 
     public BaCayGameScene(BaCayGameController controller) {
         super();
@@ -45,7 +45,7 @@ public class BaCayGameScene extends GameScene {
             seat.getChildren().clear();
             addPlayerNameLabel(seat, controller.getPlayerName(i), i);
 
-            if (allCardsRevealed) {
+            if (i<turn) {
                 controller.ensureInRound();
                 List<ImageView> cardViews = controller.getVisibleCards(i, isBasic, card -> {
                     return 0;
@@ -56,7 +56,7 @@ public class BaCayGameScene extends GameScene {
                 seat.getChildren().addAll(hidden);
             }
 
-            int pts = allCardsRevealed ? controller.getScore(i) : 0;
+            int pts = i < turn ? controller.getScore(i) : 0;
             scores.put(i, pts);
 
 
@@ -67,16 +67,16 @@ public class BaCayGameScene extends GameScene {
         buttonBox.setAlignment(Pos.CENTER);
         buttonBox.setPadding(new Insets(10, 0, 20, 0));
 
-        if (!allCardsRevealed) {
-            Button revealAll = new Button("Show All Cards");
-            revealAll.setPrefSize(150, 40);
-            revealAll.setStyle(buttonStyle);
-            revealAll.setOnAction(e -> {
+        if (turn!=total) {
+            Button reveal = new Button("Show All Cards");
+            reveal.setPrefSize(150, 40);
+            reveal.setStyle(buttonStyle);
+            reveal.setOnAction(e -> {
                 ClickSound.play();
-                allCardsRevealed = true;
+                turn+=1;
                 updateScene();
             });
-            buttonBox.getChildren().setAll(revealAll, createOutButton());
+            buttonBox.getChildren().setAll(reveal, createOutButton());
         } else {
             Button results = new Button("Show Results");
             results.setPrefSize(150, 40);
@@ -114,7 +114,7 @@ public class BaCayGameScene extends GameScene {
         newGame.setStyle(buttonStyle);
         newGame.setOnAction(e -> {
             ClickSound.play();
-            allCardsRevealed = false;
+            turn = 0;
             scores.clear();
             updateScene();
         });
