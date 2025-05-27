@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 import main.java.edu.hust.cardgame.ai.*;
 import main.java.edu.hust.cardgame.core.*;
+import main.java.edu.hust.cardgame.strategy.CardOrderingStrategy;
 import main.java.edu.hust.cardgame.strategy.CardSorter;
 import main.java.edu.hust.cardgame.strategy.TienLenCardComparisonStrategy;
+import main.java.edu.hust.cardgame.strategy.TienLenCardOrderingStrategy;
 
 public abstract class TienLen extends CardGame<StandardCard> implements SheddingGame<StandardCard> {
     protected CardCollection<StandardCard> lastPlayedCards = new CardCollection<>();
@@ -15,8 +17,9 @@ public abstract class TienLen extends CardGame<StandardCard> implements Shedding
     protected int flag;
     protected TienLenPlayValidator playValidator;
 
-    CardSorter<StandardCard> sorter = new CardSorter<>(new TienLenCardComparisonStrategy());
-    TienLenCardComparisonStrategy comparer = new TienLenCardComparisonStrategy();
+    protected CardSorter<StandardCard> sorter = new CardSorter<>(new TienLenCardComparisonStrategy());
+    protected TienLenCardComparisonStrategy comparer = new TienLenCardComparisonStrategy();
+    protected final CardOrderingStrategy<StandardCard> order = new TienLenCardOrderingStrategy();
 
     protected CardCollection<StandardCard> playedCards = new CardCollection<>();
 
@@ -65,7 +68,7 @@ public abstract class TienLen extends CardGame<StandardCard> implements Shedding
             case 1 -> new RandomValidMoveStrategy<>(1000);
             case 2 -> new BacktrackingStrategy<>();
             case 3 -> new GreedyStrategy<>();
-            case 4 -> new MonteCarloStrategy<>(10, 40);
+            case 4 -> new MonteCarloStrategy<>(10, 20);
             default -> new RandomValidMoveStrategy<>(1000);
         };
     }
@@ -268,13 +271,5 @@ public abstract class TienLen extends CardGame<StandardCard> implements Shedding
 
     public CardCollection<StandardCard> copyLastPlayedCards() {
         return lastPlayedCards.clone();
-    }
-
-    public int getCurrentPlayerIndex() {
-        return currentPlayerIndex;
-    }
-
-    public void setCurrentPlayerIndex(int index) {
-        this.currentPlayerIndex = index;
     }
 }

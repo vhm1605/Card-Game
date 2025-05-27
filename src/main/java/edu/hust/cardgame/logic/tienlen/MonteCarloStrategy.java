@@ -1,9 +1,9 @@
-package main.java.edu.hust.cardgame.ai;
+package main.java.edu.hust.cardgame.logic.tienlen;
 
 import java.util.*;
+
+import main.java.edu.hust.cardgame.ai.AIStrategy;
 import main.java.edu.hust.cardgame.core.SheddingGame;
-import main.java.edu.hust.cardgame.logic.tienlen.TienLen;
-import main.java.edu.hust.cardgame.logic.tienlen.TienLenMienNam;
 import main.java.edu.hust.cardgame.core.CardCollection;
 import main.java.edu.hust.cardgame.core.Player;
 import main.java.edu.hust.cardgame.core.StandardCard;
@@ -25,10 +25,14 @@ public class MonteCarloStrategy<C extends StandardCard, G extends SheddingGame<C
     @Override
     public CardCollection<C> decideMove(G game, Player<C> ai) {
         List<CardCollection<C>> legalMoves = generateLegalMoves(game, ai);
-        if (legalMoves.isEmpty()) return new CardCollection<>();
+        if (legalMoves.isEmpty()) {
+            return new CardCollection<>();
+        }
 
         Map<CardCollection<C>, Integer> moveScores = new HashMap<>();
-        for (CardCollection<C> move : legalMoves) moveScores.put(move, 0);
+        for (CardCollection<C> move : legalMoves) {
+            moveScores.put(move, 0);
+        }
 
         List<Player<C>> players = getPlayersSafe(game);
         int aiIndex = players.indexOf(ai);
@@ -103,7 +107,9 @@ public class MonteCarloStrategy<C extends StandardCard, G extends SheddingGame<C
                 G nextState = cloneGame(node.state);
                 List<Player<C>> nextStatePlayers = getPlayersSafe(nextState);
                 int currentPlayerIndex = nextStatePlayers.indexOf(node.currentPlayer);
-                if (currentPlayerIndex == -1) currentPlayerIndex = 0;
+                if (currentPlayerIndex == -1) {
+                    currentPlayerIndex = 0;
+                }
                 Player<C> nextPlayer = nextStatePlayers.get(currentPlayerIndex);
                 applyMove(nextState, nextPlayer, move);
                 Player<C> nextTurnPlayer = getNextPlayer(nextState, nextPlayer);
@@ -154,17 +160,23 @@ public class MonteCarloStrategy<C extends StandardCard, G extends SheddingGame<C
     private Player<C> getNextPlayer(G game, Player<C> current) {
         List<Player<C>> players = getPlayersSafe(game);
         int currentIdx = players.indexOf(current);
-        if (currentIdx == -1) currentIdx = 0;
+        if (currentIdx == -1) {
+            currentIdx = 0;
+        }
         ((TienLen) game).moveToNextPlayer();
         int nextIdx = ((TienLen) game).getCurrentPlayerIndex();
-        if (nextIdx == -1) nextIdx = (currentIdx + 1) % players.size();
+        if (nextIdx == -1) {
+            nextIdx = (currentIdx + 1) % players.size();
+        }
         return players.get(nextIdx);
     }
 
     private double rolloutMCTS(G game, Player<C> ai, Player<C> currentPlayer) {
         List<Player<C>> players = getPlayersSafe(game);
         int currentIdx = players.indexOf(currentPlayer);
-        if (currentIdx == -1) currentIdx = 0;
+        if (currentIdx == -1) {
+            currentIdx = 0;
+        }
         while (true) {
             for (int i = 0; i < players.size(); i++) {
                 Player<C> p = players.get(currentIdx);
@@ -177,7 +189,9 @@ public class MonteCarloStrategy<C extends StandardCard, G extends SheddingGame<C
                     ((TienLen) game).passTurn();
                 }
                 currentIdx = ((TienLen) game).getCurrentPlayerIndex();
-                if (currentIdx == -1) currentIdx = (currentIdx + 1) % players.size();
+                if (currentIdx == -1) {
+                    currentIdx = (currentIdx + 1) % players.size();
+                }
             }
         }
     }
@@ -214,8 +228,12 @@ public class MonteCarloStrategy<C extends StandardCard, G extends SheddingGame<C
         if (path.size() == targetSize) {
             CardCollection<C> sel = game.getSelectedCards();
             sel.empty();
-            for (int idx : path) sel.addCard(hand.getCardAt(idx));
-            if (game.isValidPlay()) out.add(sel.clone());
+            for (int idx : path) {
+                sel.addCard(hand.getCardAt(idx));
+            }
+            if (game.isValidPlay()) {
+                out.add(sel.clone());
+            }
             return;
         }
         int need = targetSize - path.size();
@@ -240,15 +258,21 @@ public class MonteCarloStrategy<C extends StandardCard, G extends SheddingGame<C
         } else {
             CardCollection<C> sel = game.getSelectedCards();
             sel.empty();
-            for (int i = 0; i < move.getSize(); i++) sel.addCard(move.getCardAt(i));
-            if (game.isValidPlay()) player.useCards(sel);
+            for (int i = 0; i < move.getSize(); i++) {
+                sel.addCard(move.getCardAt(i));
+            }
+            if (game.isValidPlay()) {
+                player.useCards(sel);
+            }
         }
     }
 
     private void randomizeOpponentsHands(G game, int aiIndex, CardCollection<C> playedCards, CardCollection<C> aiHand, List<Integer> opponentHandSizes) {
         List<Player<C>> players = getPlayersSafe(game);
         Set<C> allCards = new HashSet<>();
-        for (Player<C> p : players) allCards.addAll(p.getHand().getAllCards());
+        for (Player<C> p : players) {
+            allCards.addAll(p.getHand().getAllCards());
+        }
         allCards.addAll(playedCards.getAllCards());
         Set<C> available = new HashSet<>(allCards);
         available.removeAll(playedCards.getAllCards());
@@ -257,7 +281,9 @@ public class MonteCarloStrategy<C extends StandardCard, G extends SheddingGame<C
         Collections.shuffle(availableList, rng);
         int idx = 0;
         for (int i = 0, opp = 0; i < players.size(); i++) {
-            if (i == aiIndex) continue;
+            if (i == aiIndex) {
+                continue;
+            }
             Player<C> p = players.get(i);
             p.clearHand();
             int handSize = opponentHandSizes.get(opp++);

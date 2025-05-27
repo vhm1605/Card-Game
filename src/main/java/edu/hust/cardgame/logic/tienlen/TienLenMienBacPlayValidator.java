@@ -1,6 +1,5 @@
 package main.java.edu.hust.cardgame.logic.tienlen;
 
-import main.java.edu.hust.cardgame.logic.tienlen.util.TienLenUtils;
 import main.java.edu.hust.cardgame.core.CardCollection;
 import main.java.edu.hust.cardgame.core.CardComboType;
 import main.java.edu.hust.cardgame.core.StandardCard;
@@ -11,7 +10,7 @@ import main.java.edu.hust.cardgame.strategy.TienLenCardOrderingStrategy;
 
 public class TienLenMienBacPlayValidator implements TienLenPlayValidator {
     CardSorter<StandardCard> sorter = new CardSorter<>(new TienLenCardComparisonStrategy());
-    public final CardOrderingStrategy<StandardCard> order = new TienLenCardOrderingStrategy();
+    private final CardOrderingStrategy<StandardCard> order = new TienLenCardOrderingStrategy();
 
     @Override
     public CardComboType determineComboType(CardCollection<StandardCard> cardCollection) {

@@ -4,7 +4,7 @@ import main.java.edu.hust.cardgame.core.CardCollection;
 import main.java.edu.hust.cardgame.core.StandardCard;
 
 public class BaCayScoreStrategy implements ScoreStrategy<StandardCard> {
-    public final CardOrderingStrategy<StandardCard> order = new DefaultStandardCardOrderingStrategy();
+    private final CardOrderingStrategy<StandardCard> order = new DefaultStandardCardOrderingStrategy();
     @Override
     public int computeScore(CardCollection<StandardCard> hand) {
         int score = 0;

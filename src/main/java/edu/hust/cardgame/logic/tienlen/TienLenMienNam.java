@@ -8,7 +8,6 @@ import main.java.edu.hust.cardgame.strategy.CardOrderingStrategy;
 import main.java.edu.hust.cardgame.strategy.TienLenCardOrderingStrategy;
 
 public class TienLenMienNam extends TienLen implements Cloneable {
-    public final CardOrderingStrategy<StandardCard> order = new TienLenCardOrderingStrategy();
     public TienLenMienNam(int numberOfPlayers, int numberOfAIPlayers, DeckFactory<StandardCard> factory) {
         super(numberOfPlayers, numberOfAIPlayers, factory);
         this.playValidator = new TienLenMienNamPlayValidator();

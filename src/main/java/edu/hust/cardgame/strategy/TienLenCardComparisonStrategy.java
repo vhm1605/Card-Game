@@ -3,7 +3,7 @@ package main.java.edu.hust.cardgame.strategy;
 import main.java.edu.hust.cardgame.core.StandardCard;
 
 public class TienLenCardComparisonStrategy implements CardComparisonStrategy<StandardCard> {
-    public final CardOrderingStrategy<StandardCard> order = new TienLenCardOrderingStrategy();
+    private final CardOrderingStrategy<StandardCard> order = new TienLenCardOrderingStrategy();
     @Override
     public int compare(StandardCard firstCard, StandardCard secondCard) {
         int faceDiff = order.getFaceOrder(firstCard) - order.getFaceOrder(secondCard);

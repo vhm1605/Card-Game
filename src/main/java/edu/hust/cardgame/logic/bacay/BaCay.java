@@ -12,7 +12,7 @@ public class BaCay extends CardGame<StandardCard> implements ScoringGame<Standar
     private final ScoreStrategy<StandardCard> scoreStrategy;
     private final List<Integer> playerScores = new ArrayList<>();
     private boolean gameOver = false;
-    private static final int MaxCardEachPlayer = 3;
+    private static final int MAX_CARD_EACH_PLAYER = 3;
 
     public BaCay(int numberOfPlayers, int numberOfAIPlayers, ScoreStrategy<StandardCard> scoreStrategy, DeckFactory<StandardCard> factory) {
         super(numberOfPlayers, numberOfAIPlayers, factory);
@@ -32,7 +32,7 @@ public class BaCay extends CardGame<StandardCard> implements ScoringGame<Standar
         }
         for (Player<StandardCard> p : players) {
             int drawn = 1;
-            while (drawn <= MaxCardEachPlayer) {
+            while (drawn <= MAX_CARD_EACH_PLAYER) {
                 StandardCard card = deck.removeCardAt(0);
                 if (card.getFirst().ordinal() <= Face.TEN.ordinal()) {
                     p.receiveCard(card);
