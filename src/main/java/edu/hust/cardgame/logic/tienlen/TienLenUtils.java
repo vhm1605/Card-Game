@@ -1,4 +1,4 @@
-package main.java.edu.hust.cardgame.logic.tienlen.util;
+package main.java.edu.hust.cardgame.logic.tienlen;
 
 import main.java.edu.hust.cardgame.strategy.CardOrderingStrategy;
 import main.java.edu.hust.cardgame.model.StandardCard;

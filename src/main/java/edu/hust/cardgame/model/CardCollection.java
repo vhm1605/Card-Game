@@ -67,5 +67,4 @@ public class CardCollection<C extends CardType> {
     public int getSize() {
         return cardList.size();
     }
-
 }

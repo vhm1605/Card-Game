@@ -3,6 +3,7 @@ package main.java.edu.hust.cardgame.logic.bacay;
 import main.java.edu.hust.cardgame.core.CardGame;
 import main.java.edu.hust.cardgame.core.DeckFactory;
 import main.java.edu.hust.cardgame.core.ScoringGame;
+import main.java.edu.hust.cardgame.model.Face;
 import main.java.edu.hust.cardgame.model.Player;
 import main.java.edu.hust.cardgame.model.StandardCard;
 import main.java.edu.hust.cardgame.strategy.ScoreStrategy;
@@ -16,6 +17,7 @@ public class BaCay extends CardGame<StandardCard> implements ScoringGame<Standar
     private final ScoreStrategy<StandardCard> scoreStrategy;
     private final List<Integer> playerScores = new ArrayList<>();
     private boolean gameOver = false;
+    private static final int MaxCardEachPlayer = 3;
 
     public BaCay(int numberOfPlayers, int numberOfAIPlayers, ScoreStrategy<StandardCard> scoreStrategy, DeckFactory<StandardCard> factory) {
         super(numberOfPlayers, numberOfAIPlayers, factory);
@@ -34,8 +36,13 @@ public class BaCay extends CardGame<StandardCard> implements ScoringGame<Standar
             players.add(new Player<>());
         }
         for (Player<StandardCard> p : players) {
-            for (int i = 0; i < 3; i++) {
-                p.receiveCard(deck.removeCardAt(0));
+            int drawn = 1;
+            while (drawn <= MaxCardEachPlayer) {
+                StandardCard card = deck.removeCardAt(0);
+                if (card.getFirst().ordinal() <= Face.TEN.ordinal()) {
+                    p.receiveCard(card);
+                    drawn++;
+                }
             }
         }
     }
@@ -73,30 +80,8 @@ public class BaCay extends CardGame<StandardCard> implements ScoringGame<Standar
         startNewGame();
     }
 
-    public List<Integer> getPlayerRanking() {
-        List<Integer> ranking = new ArrayList<>();
-        for (int i = 1; i <= playerScores.size(); i++) {
-            ranking.add(i);
-        }
-        ranking.sort((p1, p2) -> playerScores.get(p2 - 1) - playerScores.get(p1 - 1));
-        return ranking;
-    }
-
-    public int getPlayerScore(int playerIndex) {
-        return playerScores.get(playerIndex);
-    }
-
-    public List<Integer> getPlayerScores() {
-        return Collections.unmodifiableList(playerScores);
-    }
-
     @Override
     public int getScoreFor(Player<StandardCard> player) {
         return scoreStrategy.computeScore(player.getHand());
-    }
-
-    @Override
-    public List<Integer> getRanking() {
-        return getPlayerRanking();
     }
 }

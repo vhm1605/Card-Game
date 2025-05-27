@@ -26,6 +26,14 @@ public abstract class TienLen extends CardGame<StandardCard> implements Shedding
     public TienLen() {
     }
 
+    public int getFlag() {
+        return flag;
+    }
+
+    public StandardCard getStartingCard() {
+        return startingCard;
+    }
+
     public TienLen(int numberOfPlayers, int numberOfAIPlayers, DeckFactory<StandardCard> factory) {
         super(numberOfPlayers, numberOfAIPlayers, factory);
         flag = 1;
@@ -36,7 +44,7 @@ public abstract class TienLen extends CardGame<StandardCard> implements Shedding
     public void deal() {
         players.clear();
 
-        AIStrategy<StandardCard, SheddingGame<StandardCard>> aiStrategy = createAIStrategy(4);
+        AIStrategy<StandardCard, SheddingGame<StandardCard>> aiStrategy = createAIStrategy(1);
 
         int numberOfHumanPlayers = numberOfPlayers - numberOfAIPlayers;
         for (int i = 0; i < numberOfHumanPlayers; i++) {

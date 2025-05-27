@@ -1,8 +1,9 @@
-package main.java.edu.hust.cardgame.ai;
+package main.java.edu.hust.cardgame.logic.tienlen;
 
 import java.util.*;
+
+import main.java.edu.hust.cardgame.ai.AIStrategy;
 import main.java.edu.hust.cardgame.core.SheddingGame;
-import main.java.edu.hust.cardgame.logic.tienlen.TienLen;
 import main.java.edu.hust.cardgame.model.CardCollection;
 import main.java.edu.hust.cardgame.model.Player;
 import main.java.edu.hust.cardgame.model.StandardCard;
@@ -183,15 +184,29 @@ public class MonteCarloStrategy<C extends StandardCard, G extends SheddingGame<C
 
     private List<CardCollection<C>> generateLegalMoves(G game, Player<C> player) {
         List<CardCollection<C>> out = new ArrayList<>();
+
+        TienLen tienlen = (TienLen) game;
+        boolean initial = tienlen.getFlag() == 1 && tienlen.getLastPlayedCards().isEmpty();
+
         CardCollection<C> hand = game.getHandOf(player).clone();
         int lastSize = game.getLastPlayedCards().getSize();
         int minSize = lastSize > 0 ? lastSize : 1;
-        for (int sz = minSize; sz <= hand.getSize(); sz++) {
-            backtrack(game, hand, sz, 0, new ArrayList<>(), out);
+        if (initial && game instanceof TienLenMienNam) {
+            ArrayList<Integer> path = new ArrayList<>();
+            path.add(0);
+            for (int sz = minSize; sz <= hand.getSize(); sz++) {
+                backtrack(game, hand, sz, 1, path, out);
+            }
+        } else {
+            for (int sz = minSize; sz <= hand.getSize(); sz++) {
+                backtrack(game, hand, sz, 0, new ArrayList<>(), out);
+            }
         }
-        // Always add the skip option, even if other moves are available
-        out.add(new CardCollection<C>());
+        if (lastSize > 0) {
+            out.add(new CardCollection<>());
+        }
         Collections.shuffle(out, rng);
+
         return out;
     }
 

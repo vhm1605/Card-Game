@@ -45,12 +45,6 @@ public abstract class CardGame<C extends CardType> implements GeneralGame<C> {
         return players.get(currentPlayerIndex);
     }
 
-    public void showAllPlayerHands() {
-        for (Player<C> player : players) {
-            player.showHand();
-        }
-    }
-
     @Override
     public CardCollection<C> getSelectedCards() {
         return new CardCollection<>();
@@ -75,15 +69,6 @@ public abstract class CardGame<C extends CardType> implements GeneralGame<C> {
     public CardCollection<C> getHandOf(Player<C> ai) {
         return ai.getHand();
     }
-
-//    @Override
-//    public int getHandSizeOf(Player<C> ai) {
-//        return ai.getHandSize();
-//    }
-
-//    public CardCollection<C> getDeck() {
-//        return deck.clone(); // Return a clone to prevent external modification
-//    }
 
     public abstract void deal();
 

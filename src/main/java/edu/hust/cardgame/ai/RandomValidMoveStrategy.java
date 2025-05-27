@@ -1,16 +1,18 @@
 package main.java.edu.hust.cardgame.ai;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import main.java.edu.hust.cardgame.core.SheddingGame;
 import main.java.edu.hust.cardgame.model.CardCollection;
 import main.java.edu.hust.cardgame.model.CardType;
 import main.java.edu.hust.cardgame.model.Player;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Random;
 
 public class RandomValidMoveStrategy<C extends CardType, G extends SheddingGame<C>> implements AIStrategy<C, G> {
     private final int maxAttempts;
+    private final Random rng = new Random();
 
     public RandomValidMoveStrategy(int maxAttempts) {
         this.maxAttempts = maxAttempts;
@@ -20,42 +22,29 @@ public class RandomValidMoveStrategy<C extends CardType, G extends SheddingGame<
     public CardCollection<C> decideMove(G game, Player<C> ai) {
         List<C> hand = new ArrayList<>(game.getHandOf(ai).getAllCards());
         int handSize = hand.size();
-        int lastSize = game.getLastPlayedCards().getSize();
-        int desired = (lastSize > 0) ? Math.min(lastSize, handSize) : 1;
 
-        // Generate all possible combinations of 'desired' size
-        List<List<C>> combos = new ArrayList<>();
-        generateCombos(hand, desired, 0, new ArrayList<>(), combos);
+        for (int attempt = 1; attempt <= maxAttempts; attempt++) {
+            int subsetSize = rng.nextInt(handSize) + 1;
+            Collections.shuffle(hand, rng);
 
-        // Shuffle for randomness
-        Collections.shuffle(combos);
-
-        for (List<C> combo : combos) {
             CardCollection<C> candidate = new CardCollection<>();
-            combo.forEach(candidate::addCard);
+            for (int i = 0; i < subsetSize; i++) {
+                candidate.addCard(hand.get(i));
+            }
 
-            // Try it
-            game.getSelectedCards().empty();
-            candidate.getAllCards().forEach(game.getSelectedCards()::addCard);
+            // set and test
+            CardCollection<C> sel = game.getSelectedCards();
+            sel.empty();
+            candidate.getAllCards().forEach(sel::addCard);
+
             if (game.isValidPlay()) {
                 return candidate;
             }
+
+            sel.empty();
         }
 
-        // If no valid play found, pass
+        // no valid move → pass
         return new CardCollection<>();
-    }
-
-    // Helper method to generate combinations
-    private void generateCombos(List<C> hand, int desired, int start, List<C> path, List<List<C>> out) {
-        if (path.size() == desired) {
-            out.add(new ArrayList<>(path));
-            return;
-        }
-        for (int i = start; i < hand.size(); i++) {
-            path.add(hand.get(i));
-            generateCombos(hand, desired, i + 1, path, out);
-            path.remove(path.size() - 1);
-        }
     }
 }
