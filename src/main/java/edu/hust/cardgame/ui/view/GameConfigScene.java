@@ -67,7 +67,7 @@ public class GameConfigScene {
             warningLabel.setText("");
             boolean isBasic = basicMode.isSelected();
 
-            GameController controller = GameControllerFactory.create(gameOption, playerCount, botCount);
+            GameController controller = GameControllerFactory.create(gameOption.id, playerCount, botCount);
             GameScene scene = GameSceneFactory.create(gameOption, controller);
             Parent gamePlayParent = scene.createGamePlay(primaryStage, isBasic, controller);
             primaryStage.getScene().setRoot(gamePlayParent);
