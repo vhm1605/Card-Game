@@ -64,7 +64,7 @@ public class BaCayGameScene extends GameScene {
         buttonBox.setPadding(new Insets(10, 0, 20, 0));
 
         if (turn!=total) {
-            Button reveal = new Button("Show All Cards");
+            Button reveal = new Button("Show");
             reveal.setPrefSize(150, 40);
             reveal.setStyle(buttonStyle);
             reveal.setOnAction(e -> {

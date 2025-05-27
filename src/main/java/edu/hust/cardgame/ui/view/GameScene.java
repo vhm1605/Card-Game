@@ -119,13 +119,13 @@ public abstract class GameScene {
         Label lbl = new Label(name);
         lbl.setStyle("-fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold;");
         double deg = (360.0 * idx / playerPanes.size() - 90 + 360) % 360;
-        if (deg >= 45 && deg < 135) {
-            StackPane.setAlignment(lbl, Pos.BOTTOM_CENTER);
-            StackPane.setMargin(lbl, new Insets(10, 0, 0, 0));
-        } else {
+//        if (deg >= 45 && deg < 135) {
+//            StackPane.setAlignment(lbl, Pos.BOTTOM_CENTER);
+//            StackPane.setMargin(lbl, new Insets(10, 0, 0, 0));
+//        } else {
             StackPane.setAlignment(lbl, Pos.TOP_CENTER);
             StackPane.setMargin(lbl, new Insets(-20, 0, 0, 0));
-        }
+   //     }
         seat.getChildren().add(lbl);
         lbl.toFront();
     }
