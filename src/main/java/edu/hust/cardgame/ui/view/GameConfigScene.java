@@ -1,4 +1,4 @@
-package main.java.edu.hust.cardgame.ui.view;
+package edu.hust.cardgame.ui.view;
 
 import javafx.application.Platform;
 import javafx.geometry.Pos;
@@ -6,15 +6,14 @@ import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
-import main.java.edu.hust.cardgame.assets.imageaction.BackgroundImage;
-import main.java.edu.hust.cardgame.assets.soundaction.ClickSound;
-import main.java.edu.hust.cardgame.controller.GameController;
-import main.java.edu.hust.cardgame.controller.GameControllerFactory;
+import edu.hust.cardgame.assets.imageaction.BackgroundImage;
+import edu.hust.cardgame.assets.soundaction.ClickSound;
+import edu.hust.cardgame.controller.GameController;
+import edu.hust.cardgame.controller.GameControllerFactory;
 
 public class GameConfigScene {
 
     public static Parent create(Stage primaryStage, GameOption gameOption) {
-        System.out.println("Selected game option: " + gameOption.name + ", max players: " + gameOption.maxPlayers);
         VBox inputPane = new VBox(20);
         inputPane.setAlignment(Pos.CENTER);
 

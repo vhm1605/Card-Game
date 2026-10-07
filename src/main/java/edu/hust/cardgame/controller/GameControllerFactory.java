@@ -1,14 +1,14 @@
-package main.java.edu.hust.cardgame.controller;
+package edu.hust.cardgame.controller;
 
-import main.java.edu.hust.cardgame.core.DeckFactory;
-import main.java.edu.hust.cardgame.core.EnumPairDeckFactory;
-import main.java.edu.hust.cardgame.logic.bacay.BaCay;
-import main.java.edu.hust.cardgame.logic.tienlen.TienLenMienBac;
-import main.java.edu.hust.cardgame.logic.tienlen.TienLenMienNam;
-import main.java.edu.hust.cardgame.core.Face;
-import main.java.edu.hust.cardgame.core.StandardCard;
-import main.java.edu.hust.cardgame.core.Suit;
-import main.java.edu.hust.cardgame.strategy.BaCayScoreStrategy;
+import edu.hust.cardgame.core.DeckFactory;
+import edu.hust.cardgame.core.EnumPairDeckFactory;
+import edu.hust.cardgame.logic.bacay.BaCay;
+import edu.hust.cardgame.logic.tienlen.TienLenMienBac;
+import edu.hust.cardgame.logic.tienlen.TienLenMienNam;
+import edu.hust.cardgame.core.Face;
+import edu.hust.cardgame.core.StandardCard;
+import edu.hust.cardgame.core.Suit;
+import edu.hust.cardgame.strategy.BaCayScoreStrategy;
 
 public class GameControllerFactory {
 

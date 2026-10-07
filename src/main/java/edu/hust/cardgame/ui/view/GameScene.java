@@ -1,4 +1,4 @@
-package main.java.edu.hust.cardgame.ui.view;
+package edu.hust.cardgame.ui.view;
 
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -10,7 +10,7 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
-import main.java.edu.hust.cardgame.controller.GameController;
+import edu.hust.cardgame.controller.GameController;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -41,7 +41,7 @@ public abstract class GameScene {
         this.buttonStyle = isBasic ? BASIC_BUTTON_STYLE : FANCY_BUTTON_STYLE;
 
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/main/java/edu/hust/cardgame/ui/fxml/GamePlayScene.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/edu/hust/cardgame/ui/fxml/GamePlayScene.fxml"));
             Parent root = loader.load();
             GameSceneController ctrl = loader.getController();
 
@@ -75,8 +75,8 @@ public abstract class GameScene {
 
             return root;
         } catch (IOException ex) {
-            ex.printStackTrace();
-            return new StackPane(new Label("Failed to load UI"));
+            Label error = new Label("Unable to load the game interface: " + ex.getMessage());
+            return new StackPane(error);
         }
     }
 
@@ -118,14 +118,8 @@ public abstract class GameScene {
     protected void addPlayerNameLabel(StackPane seat, String name, int idx) {
         Label lbl = new Label(name);
         lbl.setStyle("-fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold;");
-        double deg = (360.0 * idx / playerPanes.size() - 90 + 360) % 360;
-//        if (deg >= 45 && deg < 135) {
-//            StackPane.setAlignment(lbl, Pos.BOTTOM_CENTER);
-//            StackPane.setMargin(lbl, new Insets(10, 0, 0, 0));
-//        } else {
-            StackPane.setAlignment(lbl, Pos.TOP_CENTER);
-            StackPane.setMargin(lbl, new Insets(-20, 0, 0, 0));
-   //     }
+        StackPane.setAlignment(lbl, Pos.TOP_CENTER);
+        StackPane.setMargin(lbl, new Insets(-20, 0, 0, 0));
         seat.getChildren().add(lbl);
         lbl.toFront();
     }

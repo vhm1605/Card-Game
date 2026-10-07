@@ -1,8 +1,10 @@
-package main.java.edu.hust.cardgame.core;
+package edu.hust.cardgame.core;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 
 public class CardCollection<C extends CardType> {
     private final List<C> cardList = new ArrayList<>();
@@ -12,7 +14,7 @@ public class CardCollection<C extends CardType> {
     }
 
     public void addCard(C card) {
-        cardList.add(card);
+        cardList.add(Objects.requireNonNull(card, "card"));
     }
 
     public void addAll(CardCollection<C> other) {
@@ -26,7 +28,7 @@ public class CardCollection<C extends CardType> {
     }
 
     public List<C> getAllCards() {
-        return cardList;
+        return Collections.unmodifiableList(cardList);
     }
 
     public C removeCardAt(int index) {
@@ -37,6 +39,14 @@ public class CardCollection<C extends CardType> {
         for (C card : cards.cardList) {
             cardList.remove(card);
         }
+    }
+
+    public boolean removeCard(C card) {
+        return cardList.remove(card);
+    }
+
+    public void sort(Comparator<? super C> comparator) {
+        cardList.sort(comparator);
     }
 
     @Override
@@ -58,14 +68,23 @@ public class CardCollection<C extends CardType> {
         return cardList.contains(card);
     }
 
-    public void displayCards() {
-        for (C card : cardList) {
-            System.out.println(card);
-        }
-    }
-
     public int getSize() {
         return cardList.size();
     }
 
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) {
+            return true;
+        }
+        if (!(other instanceof CardCollection<?> cards)) {
+            return false;
+        }
+        return cardList.equals(cards.cardList);
+    }
+
+    @Override
+    public int hashCode() {
+        return cardList.hashCode();
+    }
 }

@@ -4,7 +4,7 @@
 
 <StackPane xmlns="http://javafx.com/javafx/23.0.1"
            xmlns:fx="http://javafx.com/fxml/1"
-           fx:controller="main.java.edu.hust.cardgame.ui.view.GameSceneController"
+           fx:controller="edu.hust.cardgame.ui.view.GameSceneController"
            prefWidth="1280" prefHeight="720">
 
     <!-- background + central play area -->

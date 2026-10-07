@@ -1,11 +1,9 @@
-package main.java.edu.hust.cardgame.logic.tienlen;
+package edu.hust.cardgame.logic.tienlen;
 
-import main.java.edu.hust.cardgame.core.DeckFactory;
-import main.java.edu.hust.cardgame.core.CardComboType;
-import main.java.edu.hust.cardgame.core.PlayerState;
-import main.java.edu.hust.cardgame.core.StandardCard;
-import main.java.edu.hust.cardgame.strategy.CardOrderingStrategy;
-import main.java.edu.hust.cardgame.strategy.TienLenCardOrderingStrategy;
+import edu.hust.cardgame.core.DeckFactory;
+import edu.hust.cardgame.core.CardComboType;
+import edu.hust.cardgame.core.PlayerState;
+import edu.hust.cardgame.core.StandardCard;
 
 public class TienLenMienNam extends TienLen implements Cloneable {
     public TienLenMienNam(int numberOfPlayers, int numberOfAIPlayers, DeckFactory<StandardCard> factory) {
@@ -22,7 +20,6 @@ public class TienLenMienNam extends TienLen implements Cloneable {
     public boolean isValidPlay() {
         sorter.sort(selectedCards);
         if (players.get(currentPlayerIndex).getState() == PlayerState.OUT_OF_CARDS) {
-            moveToNextPlayer();
             return false;
         }
         if (flag == 1 && getCurrentPlayer().getCardAt(0).equals(startingCard) && (selectedCards.getSize() == 0 || !selectedCards.getCardAt(0).equals(startingCard))) {
@@ -50,7 +47,6 @@ public class TienLenMienNam extends TienLen implements Cloneable {
         if (selectedCardsType == CardComboType.INVALID_PLAY) {
             return false;
         }
-        flag = 0;
         return true;
     }
 
@@ -58,19 +54,16 @@ public class TienLenMienNam extends TienLen implements Cloneable {
         switch (type) {
             case STRAIGHT:
                 if (lastIndexOfSelectedCards == lastIndexOfLastPlayCards && comparer.compare(selectedCards.getCardAt(lastIndexOfSelectedCards), lastPlayedCards.getCardAt(lastIndexOfLastPlayCards)) > 0) {
-                    flag = 0;
                     return true;
                 }
                 return false;
             case CONSECUTIVE_PAIRS:
                 if ((lastIndexOfSelectedCards > lastIndexOfLastPlayCards) || (lastIndexOfSelectedCards == lastIndexOfLastPlayCards && comparer.compare(selectedCards.getCardAt(lastIndexOfSelectedCards), lastPlayedCards.getCardAt(lastIndexOfLastPlayCards)) > 0)) {
-                    flag = 0;
                     return true;
                 }
                 return false;
             default:
                 if (comparer.compare(selectedCards.getCardAt(lastIndexOfSelectedCards), lastPlayedCards.getCardAt(lastIndexOfLastPlayCards)) > 0) {
-                    flag = 0;
                     return true;
                 }
                 return false;
@@ -79,11 +72,11 @@ public class TienLenMienNam extends TienLen implements Cloneable {
 
     private boolean handleDifferentCombo(CardComboType selectedCardsType, CardComboType lastPlayCardsType, int lastIndexOfSelectedCards, int lastIndexOfLastPlayCards) {
         if (selectedCardsType == CardComboType.FOUR_OF_A_KIND && lastPlayCardsType == CardComboType.CONSECUTIVE_PAIRS && lastIndexOfLastPlayCards + 1 == 6) {
-            flag = 0;
             return true;
         }
-        if (lastPlayCardsType == CardComboType.FOUR_OF_A_KIND && selectedCardsType == CardComboType.CONSECUTIVE_PAIRS && lastIndexOfLastPlayCards + 1 >= 8) {
-            flag = 0;
+        if (lastPlayCardsType == CardComboType.FOUR_OF_A_KIND
+                && selectedCardsType == CardComboType.CONSECUTIVE_PAIRS
+                && lastIndexOfSelectedCards + 1 >= 8) {
             return true;
         }
         if (order.getFaceOrder(lastPlayedCards.getCardAt(lastIndexOfLastPlayCards)) == 15) {
@@ -95,12 +88,10 @@ public class TienLenMienNam extends TienLen implements Cloneable {
     private boolean handleHighestSpecial(CardComboType selectedCardsType, int lastIndexOfLastPlayCards, int lastIndexOfSelectedCards) {
         if (lastIndexOfLastPlayCards == 0) {
             if (selectedCardsType == CardComboType.FOUR_OF_A_KIND || selectedCardsType == CardComboType.CONSECUTIVE_PAIRS) {
-                flag = 0;
                 return true;
             }
         } else if (lastIndexOfLastPlayCards == 1) {
             if (selectedCardsType == CardComboType.FOUR_OF_A_KIND || (selectedCardsType == CardComboType.CONSECUTIVE_PAIRS && lastIndexOfSelectedCards + 1 >= 8)) {
-                flag = 0;
                 return true;
             }
         }

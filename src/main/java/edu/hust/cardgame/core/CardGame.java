@@ -1,7 +1,8 @@
-package main.java.edu.hust.cardgame.core;
+package edu.hust.cardgame.core;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public abstract class CardGame<C extends CardType> implements GeneralGame<C> {
     protected List<Player<C>> players = new ArrayList<>();
@@ -15,10 +16,16 @@ public abstract class CardGame<C extends CardType> implements GeneralGame<C> {
     }
 
     public CardGame(int numberOfPlayers, int numberOfAIPlayers, DeckFactory<C> deckFactory) {
+        if (numberOfPlayers < 2) {
+            throw new IllegalArgumentException("A game requires at least two players");
+        }
+        if (numberOfAIPlayers < 0 || numberOfAIPlayers > numberOfPlayers) {
+            throw new IllegalArgumentException("AI player count must be between zero and the total player count");
+        }
         this.numberOfPlayers = numberOfPlayers;
         this.numberOfAIPlayers = numberOfAIPlayers;
         this.currentPlayerIndex = 0;
-        this.deckFactory = deckFactory;
+        this.deckFactory = Objects.requireNonNull(deckFactory, "deckFactory");
     }
 
     protected void initializeDeck() {
@@ -39,12 +46,6 @@ public abstract class CardGame<C extends CardType> implements GeneralGame<C> {
 
     public Player<C> getCurrentPlayer() {
         return players.get(currentPlayerIndex);
-    }
-
-    public void showAllPlayerHands() {
-        for (Player<C> player : players) {
-            player.showHand();
-        }
     }
 
     @Override
@@ -71,15 +72,6 @@ public abstract class CardGame<C extends CardType> implements GeneralGame<C> {
     public CardCollection<C> getHandOf(Player<C> ai) {
         return ai.getHand();
     }
-
-//    @Override
-//    public int getHandSizeOf(Player<C> ai) {
-//        return ai.getHandSize();
-//    }
-
-//    public CardCollection<C> getDeck() {
-//        return deck.clone(); // Return a clone to prevent external modification
-//    }
 
     public abstract void deal();
 

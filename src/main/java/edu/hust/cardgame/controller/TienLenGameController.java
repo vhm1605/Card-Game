@@ -1,16 +1,16 @@
-package main.java.edu.hust.cardgame.controller;
+package edu.hust.cardgame.controller;
 
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Background;
-import main.java.edu.hust.cardgame.assets.imageaction.BackgroundImage;
-import main.java.edu.hust.cardgame.assets.imageaction.CardImage;
-import main.java.edu.hust.cardgame.assets.soundaction.ClickSound;
-import main.java.edu.hust.cardgame.logic.tienlen.TienLen;
-import main.java.edu.hust.cardgame.core.CardCollection;
-import main.java.edu.hust.cardgame.core.Player;
-import main.java.edu.hust.cardgame.core.PlayerState;
-import main.java.edu.hust.cardgame.core.StandardCard;
-import main.java.edu.hust.cardgame.ai.AIPlayer;
+import edu.hust.cardgame.assets.imageaction.BackgroundImage;
+import edu.hust.cardgame.assets.imageaction.CardImage;
+import edu.hust.cardgame.assets.soundaction.ClickSound;
+import edu.hust.cardgame.logic.tienlen.TienLen;
+import edu.hust.cardgame.core.CardCollection;
+import edu.hust.cardgame.core.Player;
+import edu.hust.cardgame.core.PlayerState;
+import edu.hust.cardgame.core.StandardCard;
+import edu.hust.cardgame.ai.AIPlayer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -95,9 +95,11 @@ public class TienLenGameController implements GameController {
         return game.getCurrentPlayer() instanceof AIPlayer<?, ?>;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void makeAIMove() {
-        AIPlayer<StandardCard, TienLen> ai = (AIPlayer<StandardCard, TienLen>) game.getCurrentPlayer();
+        AIPlayer<StandardCard, TienLen> ai =
+                (AIPlayer<StandardCard, TienLen>) game.getCurrentPlayer();
         ai.makeMove(game);
     }
 
@@ -133,7 +135,7 @@ public class TienLenGameController implements GameController {
 
     @Override
     public Background getBackgroundImage() {
-        return BackgroundImage.set("/main/resources/card/backgroundgameplay.png");
+        return BackgroundImage.set("/card/backgroundgameplay.png");
     }
 
     @Override

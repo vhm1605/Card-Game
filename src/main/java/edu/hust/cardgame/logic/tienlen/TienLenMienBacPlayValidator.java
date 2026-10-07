@@ -1,12 +1,12 @@
-package main.java.edu.hust.cardgame.logic.tienlen;
+package edu.hust.cardgame.logic.tienlen;
 
-import main.java.edu.hust.cardgame.core.CardCollection;
-import main.java.edu.hust.cardgame.core.CardComboType;
-import main.java.edu.hust.cardgame.core.StandardCard;
-import main.java.edu.hust.cardgame.strategy.CardOrderingStrategy;
-import main.java.edu.hust.cardgame.strategy.CardSorter;
-import main.java.edu.hust.cardgame.strategy.TienLenCardComparisonStrategy;
-import main.java.edu.hust.cardgame.strategy.TienLenCardOrderingStrategy;
+import edu.hust.cardgame.core.CardCollection;
+import edu.hust.cardgame.core.CardComboType;
+import edu.hust.cardgame.core.StandardCard;
+import edu.hust.cardgame.strategy.CardOrderingStrategy;
+import edu.hust.cardgame.strategy.CardSorter;
+import edu.hust.cardgame.strategy.TienLenCardComparisonStrategy;
+import edu.hust.cardgame.strategy.TienLenCardOrderingStrategy;
 
 public class TienLenMienBacPlayValidator implements TienLenPlayValidator {
     CardSorter<StandardCard> sorter = new CardSorter<>(new TienLenCardComparisonStrategy());

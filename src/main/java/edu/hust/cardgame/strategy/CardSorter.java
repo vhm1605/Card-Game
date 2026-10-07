@@ -1,9 +1,7 @@
-package main.java.edu.hust.cardgame.strategy;
+package edu.hust.cardgame.strategy;
 
-import main.java.edu.hust.cardgame.core.CardCollection;
-import main.java.edu.hust.cardgame.core.CardType;
-
-import java.util.List;
+import edu.hust.cardgame.core.CardCollection;
+import edu.hust.cardgame.core.CardType;
 
 public class CardSorter <C extends CardType> {
     private final CardComparisonStrategy<C> strategy;
@@ -13,7 +11,6 @@ public class CardSorter <C extends CardType> {
     }
 
     public void sort(CardCollection<C> cardCollection) {
-        List<C> cards = cardCollection.getAllCards();
-        cards.sort(strategy::compare);
+        cardCollection.sort(strategy::compare);
     }
 }

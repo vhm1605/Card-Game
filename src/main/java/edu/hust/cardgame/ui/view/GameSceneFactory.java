@@ -1,6 +1,6 @@
-package main.java.edu.hust.cardgame.ui.view;
+package edu.hust.cardgame.ui.view;
 
-import main.java.edu.hust.cardgame.controller.*;
+import edu.hust.cardgame.controller.*;
 
 public class GameSceneFactory {
 

@@ -1,4 +1,4 @@
-package main.java.edu.hust.cardgame.ui.view;
+package edu.hust.cardgame.ui.view;
 
 import javafx.fxml.FXML;
 import javafx.scene.layout.BorderPane;

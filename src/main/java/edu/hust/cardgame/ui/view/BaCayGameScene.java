@@ -1,4 +1,4 @@
-package main.java.edu.hust.cardgame.ui.view;
+package edu.hust.cardgame.ui.view;
 
 import javafx.application.Platform;
 import javafx.geometry.Insets;
@@ -10,8 +10,8 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 
-import main.java.edu.hust.cardgame.assets.soundaction.ClickSound;
-import main.java.edu.hust.cardgame.controller.BaCayGameController;
+import edu.hust.cardgame.assets.soundaction.ClickSound;
+import edu.hust.cardgame.controller.BaCayGameController;
 
 import java.util.*;
 
@@ -110,6 +110,7 @@ public class BaCayGameScene extends GameScene {
         newGame.setStyle(buttonStyle);
         newGame.setOnAction(e -> {
             ClickSound.play();
+            controller.resetGame();
             turn = 0;
             scores.clear();
             updateScene();

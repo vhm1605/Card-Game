@@ -1,6 +1,6 @@
-package main.java.edu.hust.cardgame.ui.view;
+package edu.hust.cardgame.ui.view;
 
-import main.java.edu.hust.cardgame.controller.TienLenGameController;
+import edu.hust.cardgame.controller.TienLenGameController;
 import javafx.animation.PauseTransition;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -165,6 +165,7 @@ public class TienLenGameScene extends GameScene {
 
         newGame.setOnAction(e -> {
             controller.playClickSound();
+            controller.resetGame();
             updateScene();
         });
 
@@ -180,7 +181,5 @@ public class TienLenGameScene extends GameScene {
         vbox.setUserData("overlay");
         vbox.setMouseTransparent(false);
         uiLayer.getChildren().add(vbox);
-
-        controller.resetGame();
     }
 }

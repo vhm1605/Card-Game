@@ -1,13 +1,12 @@
-package main.java.edu.hust.cardgame.ai;
+package edu.hust.cardgame.ai;
 
-import main.java.edu.hust.cardgame.core.SheddingGame;
-import main.java.edu.hust.cardgame.core.CardCollection;
-import main.java.edu.hust.cardgame.core.Player;
-import main.java.edu.hust.cardgame.core.CardType;
+import edu.hust.cardgame.core.SheddingGame;
+import edu.hust.cardgame.core.CardCollection;
+import edu.hust.cardgame.core.Player;
+import edu.hust.cardgame.core.CardType;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class BacktrackingStrategy<C extends CardType, G extends SheddingGame<C>> implements AIStrategy<C, G> {
     @Override

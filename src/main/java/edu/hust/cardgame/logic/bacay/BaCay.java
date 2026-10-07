@@ -1,10 +1,7 @@
-package main.java.edu.hust.cardgame.logic.bacay;
+package edu.hust.cardgame.logic.bacay;
 
-import main.java.edu.hust.cardgame.core.*;
-import main.java.edu.hust.cardgame.strategy.ScoreStrategy;
-
-import java.util.ArrayList;
-import java.util.List;
+import edu.hust.cardgame.core.*;
+import edu.hust.cardgame.strategy.ScoreStrategy;
 
 import java.util.*;
 
@@ -15,9 +12,16 @@ public class BaCay extends CardGame<StandardCard> implements ScoringGame<Standar
     private static final int MAX_CARD_EACH_PLAYER = 3;
 
     public BaCay(int numberOfPlayers, int numberOfAIPlayers, ScoreStrategy<StandardCard> scoreStrategy, DeckFactory<StandardCard> factory) {
-        super(numberOfPlayers, numberOfAIPlayers, factory);
+        super(validatePlayerCount(numberOfPlayers), numberOfAIPlayers, factory);
         this.scoreStrategy = scoreStrategy;
         startNewGame();
+    }
+
+    private static int validatePlayerCount(int numberOfPlayers) {
+        if (numberOfPlayers > 8) {
+            throw new IllegalArgumentException("Ba Cay supports at most eight players");
+        }
+        return numberOfPlayers;
     }
 
     @Override
