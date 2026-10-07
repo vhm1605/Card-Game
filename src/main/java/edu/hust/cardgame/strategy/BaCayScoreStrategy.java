@@ -1,7 +1,7 @@
-package main.java.edu.hust.cardgame.strategy;
+package edu.hust.cardgame.strategy;
 
-import main.java.edu.hust.cardgame.core.CardCollection;
-import main.java.edu.hust.cardgame.core.StandardCard;
+import edu.hust.cardgame.core.CardCollection;
+import edu.hust.cardgame.core.StandardCard;
 
 public class BaCayScoreStrategy implements ScoreStrategy<StandardCard> {
     private final CardOrderingStrategy<StandardCard> order = new DefaultStandardCardOrderingStrategy();

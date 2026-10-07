@@ -1,10 +1,10 @@
-package main.java.edu.hust.cardgame.logic.tienlen;
+package edu.hust.cardgame.logic.tienlen;
 
-import main.java.edu.hust.cardgame.core.DeckFactory;
-import main.java.edu.hust.cardgame.core.CardCollection;
-import main.java.edu.hust.cardgame.core.CardComboType;
-import main.java.edu.hust.cardgame.core.PlayerState;
-import main.java.edu.hust.cardgame.core.StandardCard;
+import edu.hust.cardgame.core.DeckFactory;
+import edu.hust.cardgame.core.CardCollection;
+import edu.hust.cardgame.core.CardComboType;
+import edu.hust.cardgame.core.PlayerState;
+import edu.hust.cardgame.core.StandardCard;
 
 public class TienLenMienBac extends TienLen implements Cloneable {
     public TienLenMienBac(int numberOfPlayers, int numberOfAIPlayers, DeckFactory<StandardCard> factory) {
@@ -21,11 +21,16 @@ public class TienLenMienBac extends TienLen implements Cloneable {
     public boolean isValidPlay() {
         sorter.sort(selectedCards);
         if (players.get(currentPlayerIndex).getState() == PlayerState.OUT_OF_CARDS) {
-            moveToNextPlayer();
             return false;
         }
 
         if (selectedCards.getSize() == 0) {
+            return false;
+        }
+
+        if (flag == 1
+                && getCurrentPlayer().getCardAt(0).equals(startingCard)
+                && !selectedCards.contains(startingCard)) {
             return false;
         }
 
@@ -64,7 +69,6 @@ public class TienLenMienBac extends TienLen implements Cloneable {
         if (selectedCardsType == CardComboType.INVALID_PLAY) {
             return false;
         }
-        flag = 0;
         return true;
     }
 
@@ -83,17 +87,14 @@ public class TienLenMienBac extends TienLen implements Cloneable {
             case SINGLE:
                 if (faceOfHighestCardOfSelectedCards == 15) {
                     if (faceOfHighestCardOfLastPlayCards != 15) {
-                        flag = 0;
                         return true;
                     }
                     if (suitOfHighestCardOfSelectedCards > suitOfHighestCardOfLastPlayCards) {
-                        flag = 0;
                         return true;
                     }
                     return false;
                 }
                 if (suitOfHighestCardOfSelectedCards == suitOfHighestCardOfLastPlayCards && faceOfHighestCardOfSelectedCards > faceOfHighestCardOfLastPlayCards) {
-                    flag = 0;
                     return true;
                 }
                 return false;
@@ -101,19 +102,16 @@ public class TienLenMienBac extends TienLen implements Cloneable {
             case STRAIGHT:
                 if (selectedCards.getSize() == lastPlayedCards.getSize()
                         && comparer.compare(highestCardOfSelectedCards, highestCardOfLastPlayCards) > 0) {
-                    flag = 0;
                     return true;
                 }
                 return false;
 
             case PAIR:
                 if (TienLenUtils.getColorGroup(highestCardOfSelectedCards) == TienLenUtils.getColorGroup(highestCardOfLastPlayCards) && faceOfHighestCardOfSelectedCards > faceOfHighestCardOfLastPlayCards) {
-                    flag = 0;
                     return true;
                 }
                 if (faceOfHighestCardOfSelectedCards == 15 && faceOfHighestCardOfLastPlayCards == 15) {
                     if (suitOfHighestCardOfSelectedCards > suitOfHighestCardOfLastPlayCards) {
-                        flag = 0;
                         return true;
                     }
                     return false;
@@ -122,13 +120,11 @@ public class TienLenMienBac extends TienLen implements Cloneable {
 
             case TRIPLE:
                 if (faceOfHighestCardOfSelectedCards > faceOfHighestCardOfLastPlayCards && suitOfHighestCardOfSelectedCards == suitOfHighestCardOfLastPlayCards && order.getSuitOrder(selectedCards.getCardAt(0)) == order.getSuitOrder(lastPlayedCards.getCardAt(0))) {
-                    flag = 0;
                     return true;
                 }
                 return false;
             case FOUR_OF_A_KIND:
                 if (faceOfHighestCardOfSelectedCards > faceOfHighestCardOfLastPlayCards) {
-                    flag = 0;
                     return true;
                 }
             default:
@@ -138,7 +134,6 @@ public class TienLenMienBac extends TienLen implements Cloneable {
 
     private boolean handleDifferentCombo(CardComboType selectedCardsType, CardComboType lastPlayCardsType) {
         if (selectedCardsType == CardComboType.FOUR_OF_A_KIND && lastPlayCardsType == CardComboType.SINGLE && order.getFaceOrder(lastPlayedCards.getCardAt(0)) == 15) {
-            flag = 0;
             return true;
         }
         return false;

@@ -1,13 +1,13 @@
-package main.java.edu.hust.cardgame.controller;
+package edu.hust.cardgame.controller;
 
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Background;
-import main.java.edu.hust.cardgame.assets.imageaction.BackgroundImage;
-import main.java.edu.hust.cardgame.assets.imageaction.CardImage;
-import main.java.edu.hust.cardgame.assets.soundaction.ClickSound;
-import main.java.edu.hust.cardgame.logic.bacay.BaCay;
-import main.java.edu.hust.cardgame.core.Player;
-import main.java.edu.hust.cardgame.core.StandardCard;
+import edu.hust.cardgame.assets.imageaction.BackgroundImage;
+import edu.hust.cardgame.assets.imageaction.CardImage;
+import edu.hust.cardgame.assets.soundaction.ClickSound;
+import edu.hust.cardgame.logic.bacay.BaCay;
+import edu.hust.cardgame.core.Player;
+import edu.hust.cardgame.core.StandardCard;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,7 +46,7 @@ public class BaCayGameController implements GameController {
 
     @Override
     public int getCurrentPlayerIndex() {
-        return -1; // Không cần thiết với Ba Cây vì mọi người chơi cùng lúc
+        return -1;
     }
 
     @Override
@@ -56,37 +56,34 @@ public class BaCayGameController implements GameController {
 
     @Override
     public boolean isGameOver() {
-        return false; // Ba Cây không có logic 'kết thúc' truyền thống
+        return game.isGameOver();
     }
 
     @Override
     public boolean isCurrentPlayerAI() {
-        return false; // không có lượt AI cụ thể trong game này
+        return false;
     }
 
     @Override
     public void makeAIMove() {
-        // Không áp dụng cho Ba Cây
     }
 
     @Override
     public boolean isValidPlay() {
-        return false; // Không áp dụng cho Ba Cây
+        return false;
     }
 
     @Override
     public void play() {
-        // Không áp dụng cho Ba Cây
     }
 
     @Override
     public void passTurn() {
-        // Không áp dụng cho Ba Cây
     }
 
     @Override
     public String getRankingText() {
-        return ""; // Xử lý xếp hạng trong Scene
+        return "";
     }
 
     @Override
@@ -96,7 +93,7 @@ public class BaCayGameController implements GameController {
 
     @Override
     public Background getBackgroundImage() {
-        return BackgroundImage.set("/main/resources/card/backgroundgameplay.png");
+        return BackgroundImage.set("/card/backgroundgameplay.png");
     }
 
     @Override

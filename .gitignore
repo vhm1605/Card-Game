@@ -1,7 +1,15 @@
 ### IntelliJ IDEA ###
+.idea/
+*.iml
 out/
 !**/src/main/**/out/
 !**/src/test/**/out/
+
+### Maven ###
+target/
+
+### Local project references ###
+/ref/
 
 ### Eclipse ###
 .apt_generated

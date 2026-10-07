@@ -1,74 +1,74 @@
-package main.java.edu.hust.cardgame.controller;
+package edu.hust.cardgame.controller;
 
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Background;
-import main.java.edu.hust.cardgame.core.StandardCard;
+import edu.hust.cardgame.core.StandardCard;
 
 import java.util.List;
 import java.util.function.Function;
 
 public interface GameController {
 
-    /** Số lượng người chơi trong ván game */
+    /** Returns the number of players in the current game. */
     int getPlayerCount();
 
-    /** Trả về chỉ số của người chơi hiện tại */
+    /** Returns the zero-based index of the current player. */
     int getCurrentPlayerIndex();
 
-    /** Trả về tên hiển thị của người chơi tại index */
+    /** Returns the display name for a player. */
     String getPlayerName(int index);
 
-    /** Trả về danh sách hình ảnh bài đã đánh gần nhất */
+    /** Creates views for the cards most recently played. */
     List<ImageView> getLastPlayedCardImages(boolean isBasic);
 
-    /** Trả về ảnh bài của người chơi i, nếu được phép hiển thị */
+    /** Creates face-up card views for a player. */
     List<ImageView> getVisibleCards(int playerIndex, boolean isBasic, Function<StandardCard, Integer> onClickOffsetHandler);
 
-    /** Trả về ảnh bài úp (ẩn) của người chơi */
+    /** Creates face-down card views for a player. */
     List<ImageView> getHiddenCardImages(int playerIndex, boolean isBasic);
 
-    /** Có phải lượt của AI không */
+    /** Reports whether the current player is computer-controlled. */
     boolean isCurrentPlayerAI();
 
-    /** Gọi nước đi của AI */
+    /** Executes the current AI player's move. */
     void makeAIMove();
 
-    /** Bắt đầu hành động đánh bài của người chơi */
+    /** Validates the currently selected cards. */
     boolean isValidPlay();
 
-    /** Gọi hành động đánh bài */
+    /** Plays the currently selected cards. */
     void play();
 
-    /** Gọi hành động bỏ lượt */
+    /** Passes the current turn. */
     void passTurn();
 
-    /** Có kết thúc game không */
+    /** Reports whether the game has ended. */
     boolean isGameOver();
 
-    /** Hiển thị xếp hạng người chơi sau trận */
+    /** Returns a display-ready ranking summary. */
     String getRankingText();
 
-    /** Reset game để bắt đầu lại */
+    /** Resets the model for a new game. */
     void resetGame();
 
-    /** Lấy ảnh nền (background gameplay) */
+    /** Returns the gameplay background. */
     Background getBackgroundImage();
 
-    /** Âm thanh click */
+    /** Plays the UI click sound. */
     void playClickSound();
 
-    /** Kiểm tra 1 lá bài có đang được chọn không */
+    /** Reports whether a card is selected. */
     boolean isCardSelected(StandardCard card);
 
-    /** Chọn 1 lá bài */
+    /** Selects a card. */
     void selectCard(StandardCard card);
 
-    /** Bỏ chọn 1 lá bài */
+    /** Deselects a card. */
     void deselectCard(StandardCard card);
 
-    /** Bỏ chọn toàn bộ */
+    /** Clears the card selection. */
     void clearSelectedCards();
 
-    /** Đảm bảo người chơi đang ở trạng thái IN_ROUND */
+    /** Advances past players who are no longer active in the round. */
     void ensureInRound();
 }

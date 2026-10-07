@@ -1,21 +1,19 @@
-package main.java.edu.hust.cardgame.core;
+package edu.hust.cardgame.core;
 
 import java.util.List;
-import java.util.Objects;
 
 public class Player <C extends CardType> implements Cloneable {
-	private PlayerState state;
+	private PlayerState state = PlayerState.IN_ROUND;
 	private String name;
-	private int PlayerIndex;
+	private int playerIndex;
 	private int finishOrder;
 	private CardCollection<C> hand = new CardCollection<>();
 
 	public Player() {}
 
-	public Player(String name, int PlayerIndex) {
-		this.state = PlayerState.IN_ROUND;
+	public Player(String name, int playerIndex) {
 		this.name = name;
-		this.PlayerIndex = PlayerIndex;
+		this.playerIndex = playerIndex;
 		this.finishOrder = 0;
 	}
 
@@ -31,8 +29,8 @@ public class Player <C extends CardType> implements Cloneable {
 		}
 	}
 
-	public Boolean isActive() {
-		return Objects.requireNonNull(state) == PlayerState.IN_ROUND;
+	public boolean isActive() {
+		return state == PlayerState.IN_ROUND;
 	}
 
 	public PlayerState getState() {
@@ -44,7 +42,7 @@ public class Player <C extends CardType> implements Cloneable {
 	}
 
 	public int getPlayerIndex() {
-		return PlayerIndex;
+		return playerIndex;
 	}
 
 	public int getFinishOrder() {
@@ -92,10 +90,6 @@ public class Player <C extends CardType> implements Cloneable {
 
 	public void clearHand() {
 		hand.empty();
-	}
-
-	public void showHand() {
-		hand.displayCards();
 	}
 
 	public int getHandSize() {

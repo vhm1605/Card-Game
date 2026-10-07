@@ -1,5 +1,4 @@
-package main.java.edu.hust.cardgame.core;
+package edu.hust.cardgame.core;
 
-// marker
 public interface CardType {
 }

@@ -1,17 +1,21 @@
-package main.java.edu.hust.cardgame.logic.tienlen;
+package edu.hust.cardgame.logic.tienlen;
 
-import main.java.edu.hust.cardgame.strategy.CardOrderingStrategy;
-import main.java.edu.hust.cardgame.core.StandardCard;
-import main.java.edu.hust.cardgame.strategy.DefaultStandardCardOrderingStrategy;
+import edu.hust.cardgame.strategy.CardOrderingStrategy;
+import edu.hust.cardgame.core.StandardCard;
+import edu.hust.cardgame.strategy.DefaultStandardCardOrderingStrategy;
 
-public class TienLenUtils {
-    public static final CardOrderingStrategy<StandardCard> order = new DefaultStandardCardOrderingStrategy();
+public final class TienLenUtils {
+    private static final CardOrderingStrategy<StandardCard> ORDER = new DefaultStandardCardOrderingStrategy();
+
+    private TienLenUtils() {
+    }
+
     public static boolean isMatchingPair(StandardCard firstCard, StandardCard secondCard) {
-        return order.getFaceOrder(firstCard) == order.getFaceOrder(secondCard);
+        return ORDER.getFaceOrder(firstCard) == ORDER.getFaceOrder(secondCard);
     }
 
     public static int getColorGroup(StandardCard card) {
-        int suitOrder = order.getSuitOrder(card);
+        int suitOrder = ORDER.getSuitOrder(card);
         return (suitOrder - 1) / 2;
     }
 }

@@ -1,13 +1,13 @@
-package main.java.edu.hust.cardgame.logic.tienlen;
+package edu.hust.cardgame.logic.tienlen;
 
 import java.util.ArrayList;
 import java.util.List;
-import main.java.edu.hust.cardgame.ai.*;
-import main.java.edu.hust.cardgame.core.*;
-import main.java.edu.hust.cardgame.strategy.CardOrderingStrategy;
-import main.java.edu.hust.cardgame.strategy.CardSorter;
-import main.java.edu.hust.cardgame.strategy.TienLenCardComparisonStrategy;
-import main.java.edu.hust.cardgame.strategy.TienLenCardOrderingStrategy;
+import edu.hust.cardgame.ai.*;
+import edu.hust.cardgame.core.*;
+import edu.hust.cardgame.strategy.CardOrderingStrategy;
+import edu.hust.cardgame.strategy.CardSorter;
+import edu.hust.cardgame.strategy.TienLenCardComparisonStrategy;
+import edu.hust.cardgame.strategy.TienLenCardOrderingStrategy;
 
 public abstract class TienLen extends CardGame<StandardCard> implements SheddingGame<StandardCard> {
     protected CardCollection<StandardCard> lastPlayedCards = new CardCollection<>();
@@ -35,9 +35,16 @@ public abstract class TienLen extends CardGame<StandardCard> implements Shedding
     }
 
     public TienLen(int numberOfPlayers, int numberOfAIPlayers, DeckFactory<StandardCard> factory) {
-        super(numberOfPlayers, numberOfAIPlayers, factory);
+        super(validatePlayerCount(numberOfPlayers), numberOfAIPlayers, factory);
         flag = 1;
         startNewGame();
+    }
+
+    private static int validatePlayerCount(int numberOfPlayers) {
+        if (numberOfPlayers > 4) {
+            throw new IllegalArgumentException("Tien Len supports at most four players");
+        }
+        return numberOfPlayers;
     }
 
     @Override
@@ -68,7 +75,7 @@ public abstract class TienLen extends CardGame<StandardCard> implements Shedding
             case 1 -> new RandomValidMoveStrategy<>(1000);
             case 2 -> new BacktrackingStrategy<>();
             case 3 -> new GreedyStrategy<>();
-            case 4 -> new MonteCarloStrategy<>(10, 20);
+            case 4 -> new MonteCarloStrategy(10, 40);
             default -> new RandomValidMoveStrategy<>(1000);
         };
     }
@@ -84,7 +91,7 @@ public abstract class TienLen extends CardGame<StandardCard> implements Shedding
             }
             startingCard = players.get(currentPlayerIndex).getCardAt(0);
         } else {
-            currentPlayerIndex = playerRanking.getFirst() - 1;
+            currentPlayerIndex = playerRanking.get(0) - 1;
             playerRanking.clear();
         }
         resetRound();
@@ -105,18 +112,22 @@ public abstract class TienLen extends CardGame<StandardCard> implements Shedding
         }
         if (getCurrentPlayer().getState() == PlayerState.IN_ROUND) {
             sorter.sort(selectedCards);
-            if (isValidPlay()) {
-                processValidPlay();
+            if (!isValidPlay()) {
+                return;
             }
+            processValidPlay();
             moveToNextPlayer();
             updatePlayerRankingIfNeeded();
         }
     }
 
     private void processValidPlay() {
+        if (flag == 1) {
+            flag = 0;
+        }
         lastPlayedCards = selectedCards.clone();
         getCurrentPlayer().useCards(lastPlayedCards);
-        playedCards.addAll(lastPlayedCards); // Add played cards to playedCards
+        playedCards.addAll(lastPlayedCards);
         if (getCurrentPlayer().getAllCards().isEmpty()) {
             playerRanking.add(currentPlayerIndex + 1);
             getCurrentPlayer().setState(PlayerState.OUT_OF_CARDS);
@@ -205,9 +216,9 @@ public abstract class TienLen extends CardGame<StandardCard> implements Shedding
     public void resetGame() {
         selectedCards.empty();
         lastPlayedCards.empty();
-        playedCards.empty(); // Ensure playedCards is cleared when resetting the game
+        playedCards.empty();
         for (int i = 0; i < numberOfPlayers; i++) {
-            players.get(i).getAllCards().clear();
+            players.get(i).clearHand();
             players.get(i).setState(PlayerState.IN_ROUND);
         }
         startNewGame();
@@ -216,20 +227,19 @@ public abstract class TienLen extends CardGame<StandardCard> implements Shedding
     @Override
     public TienLen clone() {
         try {
-            TienLen clone = (TienLen) super.clone(); // Shallow copy of basic fields
-            // Deep copy complex fields
+            TienLen clone = (TienLen) super.clone();
             clone.lastPlayedCards = this.lastPlayedCards.clone();
             clone.selectedCards = this.selectedCards.clone();
             clone.playedCards = this.playedCards.clone();
             clone.playerRanking = new ArrayList<>(this.playerRanking);
-            clone.startingCard = this.startingCard; // Assuming StandardCard is immutable
+            clone.startingCard = this.startingCard;
             clone.players = new ArrayList<>();
             for (Player<StandardCard> p : this.players) {
-                clone.players.add(p.clone()); // Requires Player to have a clone method
+                clone.players.add(p.clone());
             }
             clone.sorter = new CardSorter<>(new TienLenCardComparisonStrategy());
             clone.comparer = new TienLenCardComparisonStrategy();
-            clone.playValidator = this.playValidator; // Adjust if playValidator needs cloning
+            clone.playValidator = this.playValidator;
             return clone;
         } catch (CloneNotSupportedException e) {
             throw new RuntimeException("Cloning failed", e);
@@ -241,7 +251,7 @@ public abstract class TienLen extends CardGame<StandardCard> implements Shedding
         int i = 0;
         for (Integer rank : playerRanking) {
             i++;
-            builder.append("Rank " + i + ": Player ").append(rank).append("\n");
+            builder.append("Rank ").append(i).append(": Player ").append(rank).append("\n");
         }
         return builder.toString();
     }
@@ -251,7 +261,7 @@ public abstract class TienLen extends CardGame<StandardCard> implements Shedding
     }
 
     public void deselectCard(StandardCard card) {
-        selectedCards.getAllCards().remove(card);
+        selectedCards.removeCard(card);
     }
 
     public void selectCard(StandardCard card) {

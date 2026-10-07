@@ -1,6 +1,6 @@
-package main.java.edu.hust.cardgame.strategy;
+package edu.hust.cardgame.strategy;
 
-import main.java.edu.hust.cardgame.core.StandardCard;
+import edu.hust.cardgame.core.StandardCard;
 
 public class TienLenCardOrderingStrategy implements CardOrderingStrategy<StandardCard> {
     private final DefaultStandardCardOrderingStrategy base = new DefaultStandardCardOrderingStrategy();

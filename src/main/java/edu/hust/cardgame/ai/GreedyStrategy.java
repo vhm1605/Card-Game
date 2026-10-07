@@ -1,9 +1,9 @@
-package main.java.edu.hust.cardgame.ai;
+package edu.hust.cardgame.ai;
 
-import main.java.edu.hust.cardgame.core.CardCollection;
-import main.java.edu.hust.cardgame.core.CardType;
-import main.java.edu.hust.cardgame.core.Player;
-import main.java.edu.hust.cardgame.core.SheddingGame;
+import edu.hust.cardgame.core.CardCollection;
+import edu.hust.cardgame.core.CardType;
+import edu.hust.cardgame.core.Player;
+import edu.hust.cardgame.core.SheddingGame;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +26,6 @@ public class GreedyStrategy<C extends CardType, G extends SheddingGame<C>> imple
         return new CardCollection<>();
     }
 
-    // Try all combinations of 'size' cards from hand, lexicographically
     private boolean findSmallestValidMove(G game, List<C> hand, int size, int start,
                                           List<Integer> indices, CardCollection<C> result) {
         if (indices.size() == size) {
@@ -34,16 +33,12 @@ public class GreedyStrategy<C extends CardType, G extends SheddingGame<C>> imple
             for (int idx : indices) {
                 candidate.addCard(hand.get(idx));
             }
-            // Try this candidate
             game.getSelectedCards().empty();
             candidate.getAllCards().forEach(game.getSelectedCards()::addCard);
 
-            // debug
-            System.out.println("Trying: " + candidate.getAllCards());
-
             if (game.isValidPlay()) {
-                result.getAllCards().clear();
-                result.getAllCards().addAll(candidate.getAllCards());
+                result.empty();
+                result.addAll(candidate);
                 return true;
             }
             return false;

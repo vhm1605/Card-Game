@@ -1,6 +1,6 @@
-package main.java.edu.hust.cardgame.strategy;
+package edu.hust.cardgame.strategy;
 
-import main.java.edu.hust.cardgame.core.CardType;
+import edu.hust.cardgame.core.CardType;
 
 public interface CardOrderingStrategy <C extends CardType> {
     int getFaceOrder(C card);

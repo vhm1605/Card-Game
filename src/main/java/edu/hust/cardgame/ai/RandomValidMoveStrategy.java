@@ -1,9 +1,9 @@
-package main.java.edu.hust.cardgame.ai;
+package edu.hust.cardgame.ai;
 
-import main.java.edu.hust.cardgame.core.SheddingGame;
-import main.java.edu.hust.cardgame.core.CardCollection;
-import main.java.edu.hust.cardgame.core.CardType;
-import main.java.edu.hust.cardgame.core.Player;
+import edu.hust.cardgame.core.SheddingGame;
+import edu.hust.cardgame.core.CardCollection;
+import edu.hust.cardgame.core.CardType;
+import edu.hust.cardgame.core.Player;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -32,7 +32,6 @@ public class RandomValidMoveStrategy<C extends CardType, G extends SheddingGame<
                 candidate.addCard(hand.get(i));
             }
 
-            // set and test
             CardCollection<C> sel = game.getSelectedCards();
             sel.empty();
             candidate.getAllCards().forEach(sel::addCard);
@@ -44,7 +43,6 @@ public class RandomValidMoveStrategy<C extends CardType, G extends SheddingGame<
             sel.empty();
         }
 
-        // no valid move → pass
         return new CardCollection<>();
     }
 }

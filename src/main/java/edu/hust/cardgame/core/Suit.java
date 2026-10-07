@@ -1,4 +1,4 @@
-package main.java.edu.hust.cardgame.core;
+package edu.hust.cardgame.core;
 
 public enum Suit {
     HEARTS("♥"), DIAMONDS("♦"), CLUBS("♣"), SPADES("♠");

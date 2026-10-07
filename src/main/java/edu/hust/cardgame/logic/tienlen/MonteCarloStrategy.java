@@ -1,313 +1,220 @@
-package main.java.edu.hust.cardgame.logic.tienlen;
+package edu.hust.cardgame.logic.tienlen;
 
-import java.util.*;
+import edu.hust.cardgame.ai.AIStrategy;
+import edu.hust.cardgame.core.CardCollection;
+import edu.hust.cardgame.core.CardComboType;
+import edu.hust.cardgame.core.Player;
+import edu.hust.cardgame.core.SheddingGame;
+import edu.hust.cardgame.core.StandardCard;
 
-import main.java.edu.hust.cardgame.ai.AIStrategy;
-import main.java.edu.hust.cardgame.core.SheddingGame;
-import main.java.edu.hust.cardgame.core.CardCollection;
-import main.java.edu.hust.cardgame.core.Player;
-import main.java.edu.hust.cardgame.core.StandardCard;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Random;
+import java.util.Set;
 
-public class MonteCarloStrategy<C extends StandardCard, G extends SheddingGame<C>> implements AIStrategy<C, G> {
+/**
+ * Chooses the move with the best average result across randomized, bounded rollouts.
+ * The strategy evaluates cloned games, so searching never mutates the live match.
+ */
+public final class MonteCarloStrategy
+        implements AIStrategy<StandardCard, SheddingGame<StandardCard>> {
+    private static final int DEFAULT_ROLLOUT_DEPTH = 40;
+
     private final int simulationsPerMove;
-    private final int mctsIterations;
-    private final Random rng = new Random();
+    private final int rolloutDepth;
+    private final Random random;
 
     public MonteCarloStrategy(int simulationsPerMove) {
-        this(simulationsPerMove, 10);
+        this(simulationsPerMove, DEFAULT_ROLLOUT_DEPTH);
     }
 
-    public MonteCarloStrategy(int simulationsPerMove, int mctsIterations) {
+    public MonteCarloStrategy(int simulationsPerMove, int rolloutDepth) {
+        this(simulationsPerMove, rolloutDepth, new Random());
+    }
+
+    MonteCarloStrategy(int simulationsPerMove, int rolloutDepth, Random random) {
+        if (simulationsPerMove < 1) {
+            throw new IllegalArgumentException("simulationsPerMove must be positive");
+        }
+        if (rolloutDepth < 1) {
+            throw new IllegalArgumentException("rolloutDepth must be positive");
+        }
         this.simulationsPerMove = simulationsPerMove;
-        this.mctsIterations = mctsIterations;
+        this.rolloutDepth = rolloutDepth;
+        this.random = Objects.requireNonNull(random, "random");
     }
 
     @Override
-    public CardCollection<C> decideMove(G game, Player<C> ai) {
-        List<CardCollection<C>> legalMoves = generateLegalMoves(game, ai);
+    public CardCollection<StandardCard> decideMove(
+            SheddingGame<StandardCard> game,
+            Player<StandardCard> ai
+    ) {
+        if (!(game instanceof TienLen liveGame)) {
+            throw new IllegalArgumentException("MonteCarloStrategy requires a Tien Len game");
+        }
+
+        int aiIndex = liveGame.getPlayers().indexOf(ai);
+        if (aiIndex < 0) {
+            throw new IllegalArgumentException("The AI player does not belong to this game");
+        }
+
+        TienLen searchRoot = liveGame.clone();
+        List<CardCollection<StandardCard>> legalMoves = generateLegalMoves(searchRoot);
         if (legalMoves.isEmpty()) {
             return new CardCollection<>();
         }
 
-        Map<CardCollection<C>, Integer> moveScores = new HashMap<>();
-        for (CardCollection<C> move : legalMoves) {
-            moveScores.put(move, 0);
-        }
+        CardCollection<StandardCard> bestMove = legalMoves.get(0);
+        double bestScore = Double.NEGATIVE_INFINITY;
 
-        List<Player<C>> players = getPlayersSafe(game);
-        int aiIndex = players.indexOf(ai);
-        List<Integer> opponentHandSizes = new ArrayList<>();
-        for (int i = 0; i < players.size(); i++) {
-            if (i != aiIndex) opponentHandSizes.add(players.get(i).getHandSize());
-        }
-        CardCollection<C> aiHandOrig = game.getHandOf(ai).clone();
-        CardCollection<C> playedCardsOrig = getPlayedCardsSafe(game).clone();
-
-        for (int sim = 0; sim < simulationsPerMove; sim++) {
-            G clonedGame = cloneGame(game);
-            List<Player<C>> clonedPlayers = getPlayersSafe(clonedGame);
-            Player<C> clonedAI = clonedPlayers.get(aiIndex);
-
-            randomizeOpponentsHands(clonedGame, aiIndex, playedCardsOrig, aiHandOrig, opponentHandSizes);
-
-            CardCollection<C> recommendedMove = mctsSearch(clonedGame, clonedAI, mctsIterations);
-
-            for (CardCollection<C> m : legalMoves) {
-                if (m.equals(recommendedMove)) {
-                    moveScores.put(m, moveScores.get(m) + 1);
-                    break;
-                }
+        for (CardCollection<StandardCard> move : legalMoves) {
+            double score = 0;
+            for (int simulation = 0; simulation < simulationsPerMove; simulation++) {
+                TienLen simulatedGame = liveGame.clone();
+                applyMove(simulatedGame, move);
+                score += rollout(simulatedGame, aiIndex);
+            }
+            double averageScore = score / simulationsPerMove;
+            if (averageScore > bestScore) {
+                bestScore = averageScore;
+                bestMove = move;
             }
         }
 
-        CardCollection<C> best = legalMoves.get(0);
-        int bestScore = -1;
-        for (CardCollection<C> move : legalMoves) {
-            int score = moveScores.get(move);
-            if (score > bestScore) {
-                bestScore = score;
-                best = move;
-            }
-        }
-        return best.clone();
+        return bestMove.clone();
     }
 
-    private class MCTSNode {
-        G state;
-        Player<C> ai;
-        CardCollection<C> move;
-        MCTSNode parent;
-        List<MCTSNode> children = new ArrayList<>();
-        int visits = 0;
-        double wins = 0;
-        boolean isTerminal = false;
-        List<CardCollection<C>> untriedMoves;
-        Player<C> currentPlayer;
-
-        MCTSNode(G state, Player<C> ai, CardCollection<C> move, MCTSNode parent, Player<C> currentPlayer) {
-            this.state = state;
-            this.ai = ai;
-            this.move = move;
-            this.parent = parent;
-            this.currentPlayer = currentPlayer;
-            this.untriedMoves = generateLegalMoves(state, currentPlayer);
-            this.isTerminal = isTerminalState(state);
+    private double rollout(TienLen game, int aiIndex) {
+        for (int turn = 0; turn < rolloutDepth && !game.isGameOver(); turn++) {
+            List<CardCollection<StandardCard>> moves = generateLegalMoves(game);
+            CardCollection<StandardCard> move = moves.isEmpty()
+                    ? new CardCollection<>()
+                    : moves.get(random.nextInt(moves.size()));
+            applyMove(game, move);
         }
+        return evaluate(game, aiIndex);
     }
 
-    private CardCollection<C> mctsSearch(G game, Player<C> ai, int iterations) {
-        MCTSNode root = new MCTSNode(game, ai, null, null, ai);
-        for (int i = 0; i < iterations; i++) {
-            MCTSNode node = root;
-            while (!node.isTerminal && node.untriedMoves.isEmpty() && !node.children.isEmpty()) {
-                node = selectChild(node);
-            }
-            if (!node.isTerminal && !node.untriedMoves.isEmpty()) {
-                CardCollection<C> move = node.untriedMoves.remove(rng.nextInt(node.untriedMoves.size()));
-                G nextState = cloneGame(node.state);
-                List<Player<C>> nextStatePlayers = getPlayersSafe(nextState);
-                int currentPlayerIndex = nextStatePlayers.indexOf(node.currentPlayer);
-                if (currentPlayerIndex == -1) {
-                    currentPlayerIndex = 0;
-                }
-                Player<C> nextPlayer = nextStatePlayers.get(currentPlayerIndex);
-                applyMove(nextState, nextPlayer, move);
-                Player<C> nextTurnPlayer = getNextPlayer(nextState, nextPlayer);
-                MCTSNode child = new MCTSNode(nextState, ai, move, node, nextTurnPlayer);
-                node.children.add(child);
-                node = child;
-            }
-            double result = rolloutMCTS(node.state, ai, node.currentPlayer);
-            while (node != null) {
-                node.visits++;
-                node.wins += result;
-                node = node.parent;
-            }
+    private double evaluate(TienLen game, int aiIndex) {
+        int playerNumber = aiIndex + 1;
+        int finishIndex = game.playerRanking.indexOf(playerNumber);
+        if (finishIndex >= 0) {
+            return 1.0 - ((double) finishIndex / Math.max(1, game.getPlayers().size() - 1));
         }
-        MCTSNode bestChild = null;
-        int mostVisits = -1;
-        for (MCTSNode child : root.children) {
-            if (child.visits > mostVisits) {
-                mostVisits = child.visits;
-                bestChild = child;
-            }
-        }
-        return bestChild != null ? bestChild.move : new CardCollection<>();
+
+        int aiCards = game.getPlayers().get(aiIndex).getHandSize();
+        int largestHand = game.getPlayers().stream()
+                .mapToInt(Player::getHandSize)
+                .max()
+                .orElse(aiCards);
+        return 1.0 - ((double) aiCards / Math.max(1, largestHand));
     }
 
-    private MCTSNode selectChild(MCTSNode node) {
-        double logParentVisits = Math.log(node.visits + 1);
-        MCTSNode best = null;
-        double bestValue = Double.NEGATIVE_INFINITY;
-        for (MCTSNode child : node.children) {
-            double uctValue = (child.wins / (child.visits + 1e-6)) + 2 * Math.sqrt( logParentVisits / (child.visits + 1e-6));
-            if (uctValue > bestValue) {
-                bestValue = uctValue;
-                best = child;
-            }
-        }
-        return best;
-    }
-
-    private boolean isTerminalState(G game) {
-        List<Player<C>> players = getPlayersSafe(game);
-        for (Player<C> p : players) {
-            if (p.getHandSize() == 0) return true;
-        }
-        return ((TienLen) game).isGameOver();
-    }
-
-    private Player<C> getNextPlayer(G game, Player<C> current) {
-        List<Player<C>> players = getPlayersSafe(game);
-        int currentIdx = players.indexOf(current);
-        if (currentIdx == -1) {
-            currentIdx = 0;
-        }
-        ((TienLen) game).moveToNextPlayer();
-        int nextIdx = ((TienLen) game).getCurrentPlayerIndex();
-        if (nextIdx == -1) {
-            nextIdx = (currentIdx + 1) % players.size();
-        }
-        return players.get(nextIdx);
-    }
-
-    private double rolloutMCTS(G game, Player<C> ai, Player<C> currentPlayer) {
-        List<Player<C>> players = getPlayersSafe(game);
-        int currentIdx = players.indexOf(currentPlayer);
-        if (currentIdx == -1) {
-            currentIdx = 0;
-        }
-        while (true) {
-            for (int i = 0; i < players.size(); i++) {
-                Player<C> p = players.get(currentIdx);
-                if (p.getHandSize() == 0) return (p == ai) ? 1.0 : 0.0;
-                List<CardCollection<C>> moves = generateLegalMoves(game, p);
-                if (!moves.isEmpty()) {
-                    CardCollection<C> move = moves.get(rng.nextInt(moves.size()));
-                    applyMove(game, p, move);
-                } else {
-                    ((TienLen) game).passTurn();
-                }
-                currentIdx = ((TienLen) game).getCurrentPlayerIndex();
-                if (currentIdx == -1) {
-                    currentIdx = (currentIdx + 1) % players.size();
-                }
-            }
-        }
-    }
-
-    private List<CardCollection<C>> generateLegalMoves(G game, Player<C> player) {
-        List<CardCollection<C>> out = new ArrayList<>();
-
-        TienLen tienlen = (TienLen) game;
-        boolean initial = tienlen.getFlag() == 1 && tienlen.getLastPlayedCards().isEmpty();
-
-        CardCollection<C> hand = game.getHandOf(player).clone();
-        int lastSize = game.getLastPlayedCards().getSize();
-        int minSize = lastSize > 0 ? lastSize : 1;
-        if (initial && game instanceof TienLenMienNam) {
-            ArrayList<Integer> path = new ArrayList<>();
-            path.add(0);
-            for (int sz = minSize; sz <= hand.getSize(); sz++) {
-                backtrack(game, hand, sz, 1, path, out);
-            }
-        } else {
-            for (int sz = minSize; sz <= hand.getSize(); sz++) {
-                backtrack(game, hand, sz, 0, new ArrayList<>(), out);
-            }
-        }
-        if (lastSize > 0) {
-            out.add(new CardCollection<>());
-        }
-        Collections.shuffle(out, rng);
-
-        return out;
-    }
-
-    private void backtrack(G game, CardCollection<C> hand, int targetSize, int start, List<Integer> path, List<CardCollection<C>> out) {
-        if (path.size() == targetSize) {
-            CardCollection<C> sel = game.getSelectedCards();
-            sel.empty();
-            for (int idx : path) {
-                sel.addCard(hand.getCardAt(idx));
-            }
-            if (game.isValidPlay()) {
-                out.add(sel.clone());
-            }
+    private void applyMove(TienLen game, CardCollection<StandardCard> move) {
+        if (move.isEmpty()) {
+            game.passTurn();
             return;
         }
-        int need = targetSize - path.size();
-        for (int i = start; i <= hand.getSize() - need; i++) {
-            path.add(i);
-            backtrack(game, hand, targetSize, i + 1, path, out);
-            path.remove(path.size() - 1);
-        }
+
+        game.getSelectedCards().empty();
+        game.getSelectedCards().addAll(move);
+        game.playGame();
+        game.getSelectedCards().empty();
     }
 
-    private G cloneGame(G game) {
-        try {
-            return (G) game.getClass().getMethod("clone").invoke(game);
-        } catch (Exception e) {
-            throw new RuntimeException("Game clone failed", e);
+    private List<CardCollection<StandardCard>> generateLegalMoves(TienLen game) {
+        List<CardCollection<StandardCard>> moves = new ArrayList<>();
+        CardCollection<StandardCard> hand = game.getCurrentPlayer().cloneHand();
+
+        for (int size : candidateSizes(game, hand.getSize())) {
+            collectCombinations(game, hand, size, 0, new ArrayList<>(), moves);
         }
+        if (!game.getLastPlayedCards().isEmpty()) {
+            moves.add(new CardCollection<>());
+        }
+
+        game.getSelectedCards().empty();
+        return moves;
     }
 
-    private void applyMove(G game, Player<C> player, CardCollection<C> move) {
-        if (move.isEmpty()) {
-            ((TienLen) game).passTurn();
-        } else {
-            CardCollection<C> sel = game.getSelectedCards();
-            sel.empty();
-            for (int i = 0; i < move.getSize(); i++) {
-                sel.addCard(move.getCardAt(i));
+    private Set<Integer> candidateSizes(TienLen game, int handSize) {
+        Set<Integer> sizes = new LinkedHashSet<>();
+        CardCollection<StandardCard> lastPlay = game.getLastPlayedCards();
+        if (lastPlay.isEmpty()) {
+            for (int size = 1; size <= handSize; size++) {
+                sizes.add(size);
             }
+            return sizes;
+        }
+
+        int lastSize = lastPlay.getSize();
+        sizes.add(lastSize);
+        CardComboType lastType = game.determineComboType(lastPlay);
+        boolean highestCardIsTwo = game.order.getFaceOrder(lastPlay.getCardAt(lastSize - 1)) == 15;
+
+        if (game instanceof TienLenMienBac) {
+            if (lastType == CardComboType.SINGLE && highestCardIsTwo) {
+                sizes.add(4);
+            }
+            return sizes;
+        }
+
+        if (lastType == CardComboType.CONSECUTIVE_PAIRS) {
+            for (int size = lastSize + 2; size <= handSize; size += 2) {
+                sizes.add(size);
+            }
+            if (lastSize == 6) {
+                sizes.add(4);
+            }
+        } else if (lastType == CardComboType.FOUR_OF_A_KIND) {
+            for (int size = 8; size <= handSize; size += 2) {
+                sizes.add(size);
+            }
+        } else if (highestCardIsTwo && lastType == CardComboType.SINGLE) {
+            sizes.add(4);
+            for (int size = 6; size <= handSize; size += 2) {
+                sizes.add(size);
+            }
+        } else if (highestCardIsTwo && lastType == CardComboType.PAIR) {
+            sizes.add(4);
+            for (int size = 8; size <= handSize; size += 2) {
+                sizes.add(size);
+            }
+        }
+
+        sizes.removeIf(size -> size > handSize);
+        return sizes;
+    }
+
+    private void collectCombinations(
+            TienLen game,
+            CardCollection<StandardCard> hand,
+            int targetSize,
+            int start,
+            List<Integer> selectedIndexes,
+            List<CardCollection<StandardCard>> moves
+    ) {
+        if (selectedIndexes.size() == targetSize) {
+            CardCollection<StandardCard> candidate = new CardCollection<>();
+            selectedIndexes.forEach(index -> candidate.addCard(hand.getCardAt(index)));
+
+            int originalFlag = game.flag;
+            game.getSelectedCards().empty();
+            game.getSelectedCards().addAll(candidate);
             if (game.isValidPlay()) {
-                player.useCards(sel);
+                moves.add(candidate);
             }
+            game.flag = originalFlag;
+            return;
         }
-    }
 
-    private void randomizeOpponentsHands(G game, int aiIndex, CardCollection<C> playedCards, CardCollection<C> aiHand, List<Integer> opponentHandSizes) {
-        List<Player<C>> players = getPlayersSafe(game);
-        Set<C> allCards = new HashSet<>();
-        for (Player<C> p : players) {
-            allCards.addAll(p.getHand().getAllCards());
-        }
-        allCards.addAll(playedCards.getAllCards());
-        Set<C> available = new HashSet<>(allCards);
-        available.removeAll(playedCards.getAllCards());
-        available.removeAll(aiHand.getAllCards());
-        List<C> availableList = new ArrayList<>(available);
-        Collections.shuffle(availableList, rng);
-        int idx = 0;
-        for (int i = 0, opp = 0; i < players.size(); i++) {
-            if (i == aiIndex) {
-                continue;
-            }
-            Player<C> p = players.get(i);
-            p.clearHand();
-            int handSize = opponentHandSizes.get(opp++);
-            for (int j = 0; j < handSize && idx < availableList.size(); j++) {
-                p.receiveCard(availableList.get(idx++));
-            }
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    private CardCollection<C> getPlayedCardsSafe(G game) {
-        try {
-            return (CardCollection<C>) game.getClass().getMethod("getPlayedCards").invoke(game);
-        } catch (Exception e) {
-            return new CardCollection<>();
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    private List<Player<C>> getPlayersSafe(G game) {
-        try {
-            return (List<Player<C>>) game.getClass().getMethod("getPlayers").invoke(game);
-        } catch (Exception e) {
-            return new ArrayList<>();
+        int cardsNeeded = targetSize - selectedIndexes.size();
+        for (int index = start; index <= hand.getSize() - cardsNeeded; index++) {
+            selectedIndexes.add(index);
+            collectCombinations(game, hand, targetSize, index + 1, selectedIndexes, moves);
+            selectedIndexes.remove(selectedIndexes.size() - 1);
         }
     }
 }

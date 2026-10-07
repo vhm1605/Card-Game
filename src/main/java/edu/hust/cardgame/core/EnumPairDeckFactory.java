@@ -1,4 +1,4 @@
-package main.java.edu.hust.cardgame.core;
+package edu.hust.cardgame.core;
 
 import java.util.ArrayList;
 import java.util.List;
